@@ -6,6 +6,10 @@ var triangleVertexPositionBuffer;
 var triangleVertexColorBuffer;
 var squareVertexPositionBuffer;
 var squareVertexColorBuffer;
+var lastTime = 0;
+var rTri = 0;
+var rSquare = 0;
+var mvMatrixStack = new Stack(mat4.clone);
 
 function elError(msg)
 {
@@ -184,6 +188,11 @@ function initBuffers()
 	squareVertexColorBuffer.numItems = 4;
 }
 
+function degToRad(degrees)
+{
+	return degrees * Math.PI / 180;
+}
+
 function drawScene()
 {
 	if (!have_shaders)
@@ -200,6 +209,8 @@ function drawScene()
 	mat4.identity(mvMatrix);
 
 	mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, -7.0]);
+	mvMatrixStack.push(mvMatrix);
+	mat4.rotate(mvMatrix, mvMatrix, degToRad(rTri), [0, 1, 0]);
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
 		triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -208,8 +219,11 @@ function drawScene()
 		triangleVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	setMatrixUniforms();
 	gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
+	mvMatrix = mvMatrixStack.pop();
 
 	mat4.translate(mvMatrix, mvMatrix, [3.0, 0.0, 0.0]);
+	mvMatrixStack.push(mvMatrix);
+	mat4.rotate(mvMatrix, mvMatrix, degToRad(rSquare), [1, 0, 0]);
 	gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
 	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
 		squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -218,6 +232,27 @@ function drawScene()
 		squareVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	setMatrixUniforms();
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+	mvMatrix = mvMatrixStack.pop();
+}
+
+function animate()
+{
+	var timeNow = new Date().getTime();
+	if (lastTime != 0)
+	{
+		var elapsed = timeNow - lastTime;
+
+		rTri += (90 * elapsed) / 1000.0;
+		rSquare += (75 * elapsed) / 1000.0;
+	}
+	lastTime = timeNow;
+}
+
+function tick()
+{
+	requestAnimFrame(tick);
+	drawScene();
+	animate();
 }
 
 function webGLStart()
@@ -230,5 +265,5 @@ function webGLStart()
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
 
-	drawScene();
+	tick();
 }
