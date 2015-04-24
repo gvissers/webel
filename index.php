@@ -8,6 +8,7 @@
 		<script type="text/javascript" src="jquery-2.1.3.js"></script>
 
 		<script type="text/javascript" src="Stack.js"></script>
+		<script type="text/javascript" src="Shaders.js"></script>
 		<script type="text/javascript" src="drawscene.js"></script>
 	</head>
 

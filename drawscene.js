@@ -1,5 +1,4 @@
 var gl;
-var shaderProgram;
 var mvMatrix = mat4.create();
 var pMatrix = mat4.create();
 var triangleVertexPositionBuffer;
@@ -10,6 +9,7 @@ var lastTime = 0;
 var rTri = 0;
 var rSquare = 0;
 var mvMatrixStack = new Stack(mat4.clone);
+var shaders = new Shaders();
 
 function elError(msg)
 {
@@ -32,113 +32,10 @@ function initGL(canvas)
 		elError("Could not initialise WebGL, sorry :-(");
 }
 
-UNINITIALIZED = -2;
-IN_PROGRESS = -1;
-OK = 0;
-ERROR = 1;
-
-var shader_status = {
-	"shaders/shader-fs.glsl": UNINITIALIZED,
-	"shaders/shader-vs.glsl": UNINITIALIZED
-};
-var have_shaders = false;
-
-function getShaderScript(fname)
-{
-	var type;
-	if (/.*-fs\.glsl/.test(fname))
-	{
-		type = gl.FRAGMENT_SHADER;
-	}
-	else if (/.*-vs\.glsl/.test(fname))
-	{
-		type = gl.VERTEX_SHADER;
-	}
-	else
-	{
-		elError("Unknown shader type for file " + fname);
-		shader_status[fname] = ERROR;
-		return;
-	}
-
-	shader_status[fname] = IN_PROGRESS;
-	$.ajax(fname, {
-		error: function() {
-			elError("Failed to get shader source file " + fname);
-			shader_status[fname] = ERROR;
-		},
-		success: function(str) {
-			var shader = gl.createShader(type);
-
-			gl.shaderSource(shader, str);
-			gl.compileShader(shader);
-
-			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
-			{
-				elError(gl.getShaderInfoLog(shader));
-				shader_status[fname] = ERROR;
-			}
-			else
-			{
-				gl.attachShader(shaderProgram, shader);
-				shader_status[fname] = OK;
-			}
-		}
-	});
-}
-
-function initShaders()
-{
-	shaderProgram = gl.createProgram();
-
-	for (var fname in shader_status)
-		getShaderScript(fname);
-
-	setTimeout(finishShaders, 100);
-}
-
-function finishShaders()
-{
-	for (var fname in shader_status)
-	{
-		switch (shader_status[fname])
-		{
-			case UNINITIALIZED:
-			case IN_PROGRESS:
-				setTimeout(finishShaders, 100);
-			case ERROR:
-				return;
-			case OK:
-			default:
-				/* continue */
-		}
-	}
-
-	gl.linkProgram(shaderProgram);
-	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS))
-	{
-		elError("Could not initialise shaders");
-		return;
-	}
-
-	gl.useProgram(shaderProgram);
-
-	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-	gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
-	shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
-	gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
-
-	shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-	shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-
-	have_shaders = true;
-}
-
 function setMatrixUniforms()
 {
-	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
-	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+	gl.uniformMatrix4fv(shaders.program.pMatrixUniform, false, pMatrix);
+	gl.uniformMatrix4fv(shaders.program.mvMatrixUniform, false, mvMatrix);
 }
 
 function initBuffers()
@@ -195,7 +92,7 @@ function degToRad(degrees)
 
 function drawScene()
 {
-	if (!have_shaders)
+	if (!shaders.ready)
 	{
 		setTimeout(drawScene, 100);
 		return;
@@ -212,10 +109,10 @@ function drawScene()
 	mvMatrixStack.push(mvMatrix);
 	mat4.rotate(mvMatrix, mvMatrix, degToRad(rTri), [0, 1, 0]);
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
+	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute,
 		triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexColorBuffer);
-	gl.vertexAttribPointer(shaderProgram.vertexColorAttribute,
+	gl.vertexAttribPointer(shaders.program.vertexColorAttribute,
 		triangleVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	setMatrixUniforms();
 	gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
@@ -225,10 +122,10 @@ function drawScene()
 	mvMatrixStack.push(mvMatrix);
 	mat4.rotate(mvMatrix, mvMatrix, degToRad(rSquare), [1, 0, 0]);
 	gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
-	gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,
+	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute,
 		squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexColorBuffer);
-	gl.vertexAttribPointer(shaderProgram.vertexColorAttribute,
+	gl.vertexAttribPointer(shaders.program.vertexColorAttribute,
 		squareVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	setMatrixUniforms();
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
@@ -259,7 +156,7 @@ function webGLStart()
 {
 	var canvas = document.getElementById("webel-canvas");
 	initGL(canvas);
-	initShaders();
+	shaders.init();
 	initBuffers();
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
