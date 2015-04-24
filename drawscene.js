@@ -85,11 +85,6 @@ function initBuffers()
 	squareVertexColorBuffer.numItems = 4;
 }
 
-function degToRad(degrees)
-{
-	return degrees * Math.PI / 180;
-}
-
 function drawScene()
 {
 	if (!shaders.ready)
@@ -107,7 +102,7 @@ function drawScene()
 
 	mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, -7.0]);
 	mvMatrixStack.push(mvMatrix);
-	mat4.rotate(mvMatrix, mvMatrix, degToRad(rTri), [0, 1, 0]);
+	mat4.rotate(mvMatrix, mvMatrix, rTri, [0, 1, 0]);
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
 	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute,
 		triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -120,7 +115,7 @@ function drawScene()
 
 	mat4.translate(mvMatrix, mvMatrix, [3.0, 0.0, 0.0]);
 	mvMatrixStack.push(mvMatrix);
-	mat4.rotate(mvMatrix, mvMatrix, degToRad(rSquare), [1, 0, 0]);
+	mat4.rotate(mvMatrix, mvMatrix, rSquare, [1, 0, 0]);
 	gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
 	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute,
 		squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -139,8 +134,8 @@ function animate()
 	{
 		var elapsed = timeNow - lastTime;
 
-		rTri += (90 * elapsed) / 1000.0;
-		rSquare += (75 * elapsed) / 1000.0;
+		rTri += (0.5 * Math.PI * elapsed) / 1000.0;
+		rSquare += (5.0/12 * Math.PI * elapsed) / 1000.0;
 	}
 	lastTime = timeNow;
 }
