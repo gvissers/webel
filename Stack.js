@@ -6,9 +6,9 @@
 function Stack(clone_fun)
 {
 	/// Clone function, used when pushing a new object on the stack
-	this.clone_fun = clone_fun;
+	var _clone_fun = clone_fun;
 	/// The stack itself
-	this.stack = [];
+	var _stack = [];
 
 	/**
 	 * Push an object on the stack
@@ -18,7 +18,7 @@ function Stack(clone_fun)
 	 */
 	this.push = function(obj)
 	{
-		this.stack.push(this.clone_fun(obj));
+		_stack.push(_clone_fun(obj));
 	}
 
 	/**
@@ -30,8 +30,8 @@ function Stack(clone_fun)
 	 */
 	this.pop = function()
 	{
-		if (this.stack.length == 0)
+		if (_stack.length == 0)
 			throw "Unable to pop empty stack";
-		return this.stack.pop();
+		return _stack.pop();
 	}
 }
