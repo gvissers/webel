@@ -22,15 +22,16 @@ function Shaders()
 		}
 		else
 		{
+			logError("Unknown shader type for file " + fname);
 			_status[fname] = this.ERROR;
-			throw ("Unknown shader type for file " + fname);
+			return;
 		}
 
 		_status[fname] = this.IN_PROGRESS;
 		$.ajax(fname, {
 			error: function() {
+				logError("Failed to get shader source file " + fname);
 				_status[fname] = Shaders.ERROR;
-				throw ("Failed to get shader source file " + fname);
 			},
 			success: function(str) {
 				var shader = gl.createShader(type);
@@ -40,8 +41,8 @@ function Shaders()
 
 				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
 				{
+					logError("Failed to compile shader: " + gl.getShaderInfoLog(shader));
 					_status[fname] = Shaders.ERROR;
-					throw gl.getShaderInfoLog(shader);
 				}
 				else
 				{
@@ -72,7 +73,7 @@ function Shaders()
 		var program = _shaders_obj.program;
 		gl.linkProgram(program);
 		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
-			throw "Could not initialise shaders";
+			logError("Could not initialise shaders");
 
 		gl.useProgram(program);
 

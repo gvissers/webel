@@ -11,7 +11,7 @@ var rSquare = 0;
 var mvMatrixStack = new Stack(mat4.clone);
 var shaders = new Shaders();
 
-function elError(msg)
+function logError(msg)
 {
 	alert(msg);
 }
@@ -29,7 +29,7 @@ function initGL(canvas)
 	}
 
 	if (!gl)
-		elError("Could not initialise WebGL, sorry :-(");
+		logError("Could not initialise WebGL, sorry :-(");
 }
 
 function setMatrixUniforms()
