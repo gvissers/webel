@@ -248,7 +248,7 @@ function drawScene()
 	gl.vertexAttribPointer(shaders.program.textureCoordAttribute,
 		cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	gl.activeTexture(gl.TEXTURE0);
-	texture_cache.bind("textures/buttons.bmp");
+	texture_cache.bind("textures/items1.dds");
 	gl.uniform1i(shaders.program.samplerUniform, 0);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
 	setMatrixUniforms();

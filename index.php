@@ -7,6 +7,9 @@
 		<script type="text/javascript" src="webgl-utils.js"></script>
 		<script type="text/javascript" src="jquery-2.1.3.js"></script>
 
+		<script type="text/javascript" src="ajaxblob.js"></script>
+
+		<script type="text/javascript" src="DDS.js"></script>
 		<script type="text/javascript" src="Stack.js"></script>
 		<script type="text/javascript" src="Shaders.js"></script>
 		<script type="text/javascript" src="TextureCache.js"></script>

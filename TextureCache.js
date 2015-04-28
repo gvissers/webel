@@ -8,6 +8,12 @@ function TextureCache()
 {
 	/// The actual cache object, initially containing only a single-pixel white texture
 	var _cache = { "white": _createWhitePixel() };
+	/// Extensions provided by our graphics card
+	var _extensions;
+	/// Whether we have support for DXT1 compressed textures
+	var _have_dxt1_support = false;
+	/// Whether we have support for DXT5 compressed textures
+	var _have_dxt5_support = false;
 
 	/**
 	 * Create single white pixel texture
@@ -31,19 +37,51 @@ function TextureCache()
 	 * Callback for loaded image
 	 *
 	 * This function is called when the image @a image to be associated with
-	 * @a texture has been loaded. It generates a new texture from the images,
+	 * @a texture has been loaded. It generates a new texture from the image,
 	 * and associates it with @a texture. The old contents of @a texture are
 	 * lost.
 	 * @param texture The texture to assign the image to
 	 * @param image   The image just loaded
 	 */
-	function _handleLoadedTexture(texture, image)
+	function _handleImageLoad(texture, image)
 	{
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	}
+
+	/**
+	 * Callback for compressed image
+	 *
+	 * This function is called when the compressed image data @data to be
+	 * associated with @a texture has been loaded. It generates a new texture
+	 * from the data, and associates it with @a texture. The old contents of
+	 * @a texture are lost.
+	 * @param texture The texture to assign the image to
+	 * @param data    The image data just loaded
+	 */
+	function _handleCompressedImageLoad(texture, data)
+	{
+		dds = new DDS(data);
+		if (!dds.ok)
+			return;
+
+		var format;
+		if (dds.format == "DXT1" && _have_dxt1_support)
+			format = _extensions.COMPRESSED_RGBA_S3TC_DXT1_EXT;
+		else if (dds.format == "DXT5" && _have_dxt5_support)
+			format = _extensions.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+		else
+			return;
+
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.compressedTexImage2D(gl.TEXTURE_2D, 0, format, dds.width, dds.height,
+			0, dds.data[0]);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		//gl.generateMipmap(gl.TEXTURE_2D);
 	}
 
 	/**
@@ -59,11 +97,26 @@ function TextureCache()
 		if (!(fname in _cache))
 		{
 			_cache[fname] = _createWhitePixel();
-			image = new Image();
-			image.onload = function() {
-				_handleLoadedTexture(_cache[fname], image)
+			if (/\.dds$/.test(fname))
+			{
+				$.ajax(fname, {
+					dataType: "arraybuffer",
+					error: function() {
+						logError("Failed to get texture " + fname);
+					},
+					success: function(data) {
+						_handleCompressedImageLoad(_cache[fname], data);
+					}
+				});
 			}
-			image.src = fname;
+			else
+			{
+				image = new Image();
+				image.onload = function() {
+					_handleImageLoad(_cache[fname], image)
+				}
+				image.src = fname;
+			}
 		}
 		return _cache[fname];
 	};
@@ -78,4 +131,23 @@ function TextureCache()
 	{
 		gl.bindTexture(gl.TEXTURE_2D, this.get(fname));
 	}
+
+	// Check if we have the required GL extensions for handling compressed textures
+	_extensions = gl.getExtension("WEBKIT_WEBGL_compressed_texture_s3tc");
+	if (_extensions)
+	{
+		var formats = gl.getParameter(gl.COMPRESSED_TEXTURE_FORMATS);
+		for (var i = 0; i < formats.length; ++i)
+		{
+			switch (formats[i])
+			{
+				case _extensions.COMPRESSED_RGBA_S3TC_DXT1_EXT:
+					_have_dxt1_support = true;
+					break;
+				case _extensions.COMPRESSED_RGBA_S3TC_DXT5_EXT:
+					_have_dxt5_support = true;
+					break;
+			}
+		}
+    }
 }
