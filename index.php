@@ -9,6 +9,7 @@
 
 		<script type="text/javascript" src="Stack.js"></script>
 		<script type="text/javascript" src="Shaders.js"></script>
+		<script type="text/javascript" src="TextureCache.js"></script>
 		<script type="text/javascript" src="drawscene.js"></script>
 	</head>
 

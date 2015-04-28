@@ -11,6 +11,7 @@ var rPyramid = 0;
 var rCube = 0;
 var mvMatrixStack = new Stack(mat4.clone);
 var shaders = new Shaders();
+var texture_cache;
 
 function logError(msg)
 {
@@ -196,35 +197,6 @@ function initBuffers()
 	cubeVertexIndexBuffer.numItems = cubeVertexIndices.length / cubeVertexIndexBuffer.itemSize;
 }
 
-var imgTexture;
-var whiteTexure;
-function initTexture()
-{
-	// Texture loaded from file
-	imgTexture = gl.createTexture();
-	imgTexture.image = new Image();
-	imgTexture.image.onload = function() {
-		handleLoadedTexture(imgTexture)
-	}
-	imgTexture.image.src = "textures/buttons.bmp";
-
-	// single-pixel white texture to use for colored objects
-	whiteTexture = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, whiteTexture);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-		new Uint8Array([255, 255, 255, 255]));
-}
-
-function handleLoadedTexture(texture)
-{
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-	gl.bindTexture(gl.TEXTURE_2D, null);
-}
-
 function drawScene()
 {
 	if (!shaders.ready)
@@ -249,7 +221,7 @@ function drawScene()
 		pyramidVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	// Pyramid is drawn using solid colors, use single-pixel white texture
 	// for texture interpolation
-	gl.bindTexture(gl.TEXTURE_2D, whiteTexture);
+	gl.bindTexture(gl.TEXTURE_2D, texture_cache.get("white"));
 	// turn off texture coordinates.
 	gl.enableVertexAttribArray(shaders.program.vertexColorAttribute);
 	gl.disableVertexAttribArray(shaders.program.textureCoordAttribute);
@@ -276,7 +248,7 @@ function drawScene()
 	gl.vertexAttribPointer(shaders.program.textureCoordAttribute,
 		cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, imgTexture);
+	gl.bindTexture(gl.TEXTURE_2D, texture_cache.get("textures/buttons.bmp"));
 	gl.uniform1i(shaders.program.samplerUniform, 0);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
 	setMatrixUniforms();
@@ -309,9 +281,10 @@ function webGLStart()
 {
 	var canvas = document.getElementById("webel-canvas");
 	initGL(canvas);
+
 	shaders.init();
 	initBuffers();
-	initTexture();
+	texture_cache = new TextureCache();
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
