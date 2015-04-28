@@ -4,7 +4,7 @@ var pMatrix = mat4.create();
 var pyramidVertexPositionBuffer;
 var pyramidVertexColorBuffer;
 var cubeVertexPositionBuffer;
-var cubeVertexColorBuffer;
+var cubeVertexTextureCoordBuffer;
 var cubeVertexIndexBuffer;
 var lastTime = 0;
 var rPyramid = 0;
@@ -138,26 +138,48 @@ function initBuffers()
 	cubeVertexPositionBuffer.itemSize = 3;
 	cubeVertexPositionBuffer.numItems = vertices.length / cubeVertexPositionBuffer.itemSize;
 
-	cubeVertexColorBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-	colors = [
-            [1.0, 0.0, 0.0, 1.0], // Front face
-            [1.0, 1.0, 0.0, 1.0], // Back face
-            [0.0, 1.0, 0.0, 1.0], // Top face
-            [1.0, 0.5, 0.5, 1.0], // Bottom face
-            [1.0, 0.0, 1.0, 1.0], // Right face
-            [0.0, 0.0, 1.0, 1.0]  // Left face
+	cubeVertexTextureCoordBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer);
+	var textureCoords = [
+	// Front face
+	0.0, 0.0,
+	1.0, 0.0,
+	1.0, 1.0,
+	0.0, 1.0,
+
+	// Back face
+	1.0, 0.0,
+	1.0, 1.0,
+	0.0, 1.0,
+	0.0, 0.0,
+
+	// Top face
+	0.0, 1.0,
+	0.0, 0.0,
+	1.0, 0.0,
+	1.0, 1.0,
+
+	// Bottom face
+	1.0, 1.0,
+	0.0, 1.0,
+	0.0, 0.0,
+	1.0, 0.0,
+
+	// Right face
+	1.0, 0.0,
+	1.0, 1.0,
+	0.0, 1.0,
+	0.0, 0.0,
+
+	// Left face
+	0.0, 0.0,
+	1.0, 0.0,
+	1.0, 1.0,
+	0.0, 1.0,
 	];
-	var unpackedColors = [];
-	for (var i = 0; i < colors.length; ++i)
-	{
-		var color = colors[i];
-		for (var j = 0; j < 4; ++j)
-			unpackedColors = unpackedColors.concat(color);
-	}
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
-	cubeVertexColorBuffer.itemSize = 4;
-	cubeVertexColorBuffer.numItems = unpackedColors.length / cubeVertexColorBuffer.itemSize;
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
+	cubeVertexTextureCoordBuffer.itemSize = 2;
+	cubeVertexTextureCoordBuffer.numItems = textureCoords.length / cubeVertexTextureCoordBuffer.itemSize;
 
 	cubeVertexIndexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
@@ -172,6 +194,35 @@ function initBuffers()
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
 	cubeVertexIndexBuffer.itemSize = 1;
 	cubeVertexIndexBuffer.numItems = cubeVertexIndices.length / cubeVertexIndexBuffer.itemSize;
+}
+
+var imgTexture;
+var whiteTexure;
+function initTexture()
+{
+	// Texture loaded from file
+	imgTexture = gl.createTexture();
+	imgTexture.image = new Image();
+	imgTexture.image.onload = function() {
+		handleLoadedTexture(imgTexture)
+	}
+	imgTexture.image.src = "textures/buttons.bmp";
+
+	// single-pixel white texture to use for colored objects
+	whiteTexture = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, whiteTexture);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+		new Uint8Array([255, 255, 255, 255]));
+}
+
+function handleLoadedTexture(texture)
+{
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
 function drawScene()
@@ -191,10 +242,17 @@ function drawScene()
 
 	mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, -7.0]);
 	mvMatrixStack.push(mvMatrix);
-	mat4.rotate(mvMatrix, mvMatrix, rPyramid, [0, 1, 0]);
+	mat4.rotate(mvMatrix, mvMatrix, rPyramid, [1, 1, 0]);
+	// Set vertex positions
 	gl.bindBuffer(gl.ARRAY_BUFFER, pyramidVertexPositionBuffer);
 	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute,
 		pyramidVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	// Pyramid is drawn using solid colors, use single-pixel white texture
+	// for texture interpolation
+	gl.bindTexture(gl.TEXTURE_2D, whiteTexture);
+	// turn off texture coordinates.
+	gl.enableVertexAttribArray(shaders.program.vertexColorAttribute);
+	gl.disableVertexAttribArray(shaders.program.textureCoordAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, pyramidVertexColorBuffer);
 	gl.vertexAttribPointer(shaders.program.vertexColorAttribute,
 		pyramidVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -205,12 +263,21 @@ function drawScene()
 	mat4.translate(mvMatrix, mvMatrix, [3.0, 0.0, 0.0]);
 	mvMatrixStack.push(mvMatrix);
 	mat4.rotate(mvMatrix, mvMatrix, rCube, [1, 1, 1]);
+	// Set vertex positions
 	gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
 	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute,
 		cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-	gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-	gl.vertexAttribPointer(shaders.program.vertexColorAttribute,
-		cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	// Cube uses texture only, disable color and use white
+	gl.disableVertexAttribArray(shaders.program.vertexColorAttribute);
+	gl.vertexAttrib4f(shaders.program.vertexColorAttribute, 1, 1, 1, 1);
+	// Set texture buffer
+	gl.enableVertexAttribArray(shaders.program.textureCoordAttribute);
+	gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer);
+	gl.vertexAttribPointer(shaders.program.textureCoordAttribute,
+		cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, imgTexture);
+	gl.uniform1i(shaders.program.samplerUniform, 0);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
 	setMatrixUniforms();
 	gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems,
@@ -244,6 +311,7 @@ function webGLStart()
 	initGL(canvas);
 	shaders.init();
 	initBuffers();
+	initTexture();
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
