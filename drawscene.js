@@ -221,7 +221,7 @@ function drawScene()
 		pyramidVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	// Pyramid is drawn using solid colors, use single-pixel white texture
 	// for texture interpolation
-	gl.bindTexture(gl.TEXTURE_2D, texture_cache.get("white"));
+	texture_cache.bind("white");
 	// turn off texture coordinates.
 	gl.enableVertexAttribArray(shaders.program.vertexColorAttribute);
 	gl.disableVertexAttribArray(shaders.program.textureCoordAttribute);
@@ -248,7 +248,7 @@ function drawScene()
 	gl.vertexAttribPointer(shaders.program.textureCoordAttribute,
 		cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, texture_cache.get("textures/buttons.bmp"));
+	texture_cache.bind("textures/buttons.bmp");
 	gl.uniform1i(shaders.program.samplerUniform, 0);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
 	setMatrixUniforms();

@@ -67,4 +67,15 @@ function TextureCache()
 		}
 		return _cache[fname];
 	};
+
+	/**
+	 * Bind a texture
+	 *
+	 * Retrieve the texture associated with file @fname from this cache, and
+	 * bind it as the current GL texture.
+	 */
+	this.bind = function(fname)
+	{
+		gl.bindTexture(gl.TEXTURE_2D, this.get(fname));
+	}
 }
