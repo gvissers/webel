@@ -97,7 +97,7 @@ function Shaders()
 			_getShaderScript(fname);
 
 		setTimeout(_finishShaders, 100);
-	}
+	};
 }
 
 Shaders.UNINITIALIZED = -2;
