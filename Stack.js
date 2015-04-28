@@ -1,7 +1,7 @@
 /**
  * General purpose stack
  *
- * Stack using clone_fun to clone object to be pushed on the stack.
+ * Stack using @a clone_fun to clone object to be pushed on the stack.
  */
 function Stack(clone_fun)
 {
