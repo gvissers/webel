@@ -12,6 +12,7 @@ var rCube = 0;
 var mvMatrixStack = new Stack(mat4.clone);
 var shaders = new Shaders();
 var texture_cache;
+camera = new Camera();
 
 function logError(msg)
 {
@@ -203,8 +204,6 @@ var xSpeed = 0;
 var yRot = 0;
 var ySpeed = 0;
 
-var z = -5.0;
-
 var filter = 0;
 
 function drawScene()
@@ -221,9 +220,10 @@ function drawScene()
 	mat4.perspective(pMatrix, 45, gl.viewportWidth/gl.viewportHeight, 0.1, 100.0);
 
 	mat4.identity(mvMatrix);
+	mat4.translate(mvMatrix, mvMatrix, camera.position);
 
-	mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, z]);
 	mvMatrixStack.push(mvMatrix);
+	mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, 0.0]);
 	mat4.rotate(mvMatrix, mvMatrix, rPyramid, [1, 1, 0]);
 	// Set vertex positions
 	gl.bindBuffer(gl.ARRAY_BUFFER, pyramidVertexPositionBuffer);
@@ -242,8 +242,8 @@ function drawScene()
 	gl.drawArrays(gl.TRIANGLES, 0, pyramidVertexPositionBuffer.numItems);
 	mvMatrix = mvMatrixStack.pop();
 
-	mat4.translate(mvMatrix, mvMatrix, [3.0, 0.0, 0.0]);
 	mvMatrixStack.push(mvMatrix);
+	mat4.translate(mvMatrix, mvMatrix, [1.5, 0.0, 0.0]);
 	mat4.rotate(mvMatrix, mvMatrix, xRot, [1, 0, 0]);
 	mat4.rotate(mvMatrix, mvMatrix, yRot, [0, 1, 0]);
 	// Set vertex positions
@@ -307,11 +307,11 @@ function handleKeys()
 {
 	if (pressedKeys[33]) {
       // Page Up
-      z -= 0.05;
+      camera.zoomOut();
     }
     if (pressedKeys[34]) {
       // Page Down
-      z += 0.05;
+      camera.zoomIn();
     }
     if (pressedKeys[37]) {
       // Left cursor key
