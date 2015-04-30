@@ -9,6 +9,7 @@
 
 		<script type="text/javascript" src="ajaxblob.js"></script>
 
+		<script type="text/javascript" src="Camera.js"></script>
 		<script type="text/javascript" src="DDS.js"></script>
 		<script type="text/javascript" src="Stack.js"></script>
 		<script type="text/javascript" src="Shaders.js"></script>
