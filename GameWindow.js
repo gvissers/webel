@@ -241,20 +241,12 @@ GameWindow.prototype.animate = function(time)
 
 GameWindow.prototype.handleKeys = function(keys_pressed)
 {
-    if (keys_pressed[37]) {
-      // Left cursor key
-      this.rCubeSpeed[1] -= 1;
-    }
-    if (keys_pressed[39]) {
-      // Right cursor key
-      this.rCubeSpeed[1] += 1;
-    }
-    if (keys_pressed[38]) {
-      // Up cursor key
-      this.rCubeSpeed[0] -= 1;
-    }
-    if (keys_pressed[40]) {
-      // Down cursor key
-      this.rCubeSpeed[0] += 1;
-    }
+	if (keys_pressed[KeyHandler.KeyCode.Left])
+		this.rCubeSpeed[1] -= 1;
+	if (keys_pressed[KeyHandler.KeyCode.Right])
+		this.rCubeSpeed[1] += 1;
+	if (keys_pressed[KeyHandler.KeyCode.Up])
+		this.rCubeSpeed[0] -= 1;
+	if (keys_pressed[KeyHandler.KeyCode.Down])
+		this.rCubeSpeed[0] += 1;
 }

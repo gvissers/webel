@@ -6,9 +6,8 @@ var lastTime = 0;
 var mvMatrixStack = new Stack(mat4.clone);
 var shaders = new Shaders();
 var texture_cache;
-camera = new Camera();
-var keys_pressed = {}
-
+var camera = new Camera();
+var key_handler = new KeyHandler();
 
 function logError(msg)
 {
@@ -65,32 +64,9 @@ function animate()
 function tick()
 {
 	requestAnimFrame(tick);
-	handleKeys();
+	key_handler.handleKeys();
 	drawScene();
 	animate();
-}
-
-function handleKeyDown(event)
-{
-	keys_pressed[event.keyCode] = true;
-}
-
-function handleKeyUp(event)
-{
-	keys_pressed[event.keyCode] = false;
-}
-
-function handleKeys()
-{
-	if (keys_pressed[33]) {
-      // Page Up
-      camera.zoomOut();
-    }
-    if (keys_pressed[34]) {
-      // Page Down
-      camera.zoomIn();
-    }
-    game_window.handleKeys(keys_pressed);
 }
 
 function webGLStart()
@@ -105,8 +81,8 @@ function webGLStart()
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
 
-	document.onkeydown = handleKeyDown;
-	document.onkeyup = handleKeyUp;
+	document.onkeydown = function(event) { key_handler.handleKeyDown(event); }
+	document.onkeyup = function(event) { key_handler.handleKeyUp(event); }
 
 	tick();
 }
