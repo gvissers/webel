@@ -197,6 +197,16 @@ function initBuffers()
 	cubeVertexIndexBuffer.numItems = cubeVertexIndices.length / cubeVertexIndexBuffer.itemSize;
 }
 
+var xRot = 0;
+var xSpeed = 0;
+
+var yRot = 0;
+var ySpeed = 0;
+
+var z = -5.0;
+
+var filter = 0;
+
 function drawScene()
 {
 	if (!shaders.ready)
@@ -212,7 +222,7 @@ function drawScene()
 
 	mat4.identity(mvMatrix);
 
-	mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, -7.0]);
+	mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, z]);
 	mvMatrixStack.push(mvMatrix);
 	mat4.rotate(mvMatrix, mvMatrix, rPyramid, [1, 1, 0]);
 	// Set vertex positions
@@ -234,7 +244,8 @@ function drawScene()
 
 	mat4.translate(mvMatrix, mvMatrix, [3.0, 0.0, 0.0]);
 	mvMatrixStack.push(mvMatrix);
-	mat4.rotate(mvMatrix, mvMatrix, rCube, [1, 1, 1]);
+	mat4.rotate(mvMatrix, mvMatrix, xRot, [1, 0, 0]);
+	mat4.rotate(mvMatrix, mvMatrix, yRot, [0, 1, 0]);
 	// Set vertex positions
 	gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
 	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute,
@@ -257,6 +268,7 @@ function drawScene()
 	mvMatrix = mvMatrixStack.pop();
 }
 
+
 function animate()
 {
 	var timeNow = new Date().getTime();
@@ -265,7 +277,8 @@ function animate()
 		var elapsed = timeNow - lastTime;
 
 		rPyramid += (0.5 * Math.PI * elapsed) / 1000.0;
-		rCube -= (5.0/12 * Math.PI * elapsed) / 1000.0;
+		xRot -= (xSpeed * Math.PI/180 * elapsed) / 1000.0;
+		yRot -= (ySpeed * Math.PI/180 * elapsed) / 1000.0;
 	}
 	lastTime = timeNow;
 }
@@ -273,8 +286,49 @@ function animate()
 function tick()
 {
 	requestAnimFrame(tick);
+	handleKeys();
 	drawScene();
 	animate();
+}
+
+var pressedKeys = {}
+
+function handleKeyDown(event)
+{
+	pressedKeys[event.keyCode] = true;
+}
+
+function handleKeyUp(event)
+{
+	pressedKeys[event.keyCode] = false;
+}
+
+function handleKeys()
+{
+	if (pressedKeys[33]) {
+      // Page Up
+      z -= 0.05;
+    }
+    if (pressedKeys[34]) {
+      // Page Down
+      z += 0.05;
+    }
+    if (pressedKeys[37]) {
+      // Left cursor key
+      ySpeed -= 1;
+    }
+    if (pressedKeys[39]) {
+      // Right cursor key
+      ySpeed += 1;
+    }
+    if (pressedKeys[38]) {
+      // Up cursor key
+      xSpeed -= 1;
+    }
+    if (pressedKeys[40]) {
+      // Down cursor key
+      xSpeed += 1;
+    }
 }
 
 function webGLStart()
@@ -288,6 +342,9 @@ function webGLStart()
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
+
+	document.onkeydown = handleKeyDown;
+	document.onkeyup = handleKeyUp;
 
 	tick();
 }
