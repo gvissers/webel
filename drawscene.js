@@ -34,6 +34,10 @@ function setMatrixUniforms()
 {
 	gl.uniformMatrix4fv(shaders.program.pMatrixUniform, false, pMatrix);
 	gl.uniformMatrix4fv(shaders.program.mvMatrixUniform, false, mvMatrix);
+
+	var normalMatrix = mat3.create();
+	mat3.normalFromMat4(normalMatrix, mvMatrix);
+	gl.uniformMatrix3fv(shaders.program.nMatrixUniform, false, normalMatrix);
 }
 
 function drawScene()

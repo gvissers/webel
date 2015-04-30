@@ -9,8 +9,13 @@ function GameWindow()
 	this.pyramidVertexPositionBuffer = null;
 	this.pyramidVertexColorBuffer = null;
 	this.cubeVertexPositionBuffer = null;
+	this.cubeVertexNormalBuffer = null;
 	this.cubeVertexTextureCoordBuffer = null;
 	this.cubeVertexIndexBuffer = null;
+
+	this.ambientColor = [1.0, 0.0, 0.0];
+	this.lightingDirection = [1.0, 1.0, 0.0];
+	this.directionalColor = [0.0, 1.0, 1.0];
 
 	this._construct();
 }
@@ -115,7 +120,51 @@ GameWindow.prototype._construct = function()
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 	this.cubeVertexPositionBuffer.itemSize = 3;
 	this.cubeVertexPositionBuffer.numItems = vertices.length /
-		this.cubeVertexPositionBuffer.itemSize;
+	this.cubeVertexPositionBuffer.itemSize;
+
+	this.cubeVertexNormalBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVertexNormalBuffer);
+	var vertexNormals = [
+		// Front face
+		 0.0,  0.0,  1.0,
+		 0.0,  0.0,  1.0,
+		 0.0,  0.0,  1.0,
+		 0.0,  0.0,  1.0,
+
+		// Back face
+		 0.0,  0.0, -1.0,
+		 0.0,  0.0, -1.0,
+		 0.0,  0.0, -1.0,
+		 0.0,  0.0, -1.0,
+
+		// Top face
+		 0.0,  1.0,  0.0,
+		 0.0,  1.0,  0.0,
+		 0.0,  1.0,  0.0,
+		 0.0,  1.0,  0.0,
+
+		// Bottom face
+		 0.0, -1.0,  0.0,
+		 0.0, -1.0,  0.0,
+		 0.0, -1.0,  0.0,
+		 0.0, -1.0,  0.0,
+
+		// Right face
+		 1.0,  0.0,  0.0,
+		 1.0,  0.0,  0.0,
+		 1.0,  0.0,  0.0,
+		 1.0,  0.0,  0.0,
+
+		// Left face
+		-1.0,  0.0,  0.0,
+		-1.0,  0.0,  0.0,
+		-1.0,  0.0,  0.0,
+		-1.0,  0.0,  0.0,
+	];
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
+	this.cubeVertexNormalBuffer.itemSize = 3;
+	this.cubeVertexNormalBuffer.numItems = vertexNormals.length /
+			this.cubeVertexNormalBuffer.itemSize;
 
 	this.cubeVertexTextureCoordBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVertexTextureCoordBuffer);
@@ -180,6 +229,8 @@ GameWindow.prototype._construct = function()
 
 GameWindow.prototype.draw = function()
 {
+	gl.uniform1i(shaders.program.useLightingUniform, false);
+
 	mvMatrixStack.push(mvMatrix);
 	mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, 0.0]);
 	mat4.rotate(mvMatrix, mvMatrix, this.rPyramid, [1, 1, 0]);
@@ -191,6 +242,7 @@ GameWindow.prototype.draw = function()
 	// for texture interpolation
 	texture_cache.bind("white");
 	// turn off texture coordinates.
+	gl.disableVertexAttribArray(shaders.program.vertexNormalAttribute);
 	gl.enableVertexAttribArray(shaders.program.vertexColorAttribute);
 	gl.disableVertexAttribArray(shaders.program.textureCoordAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.pyramidVertexColorBuffer);
@@ -200,6 +252,14 @@ GameWindow.prototype.draw = function()
 	gl.drawArrays(gl.TRIANGLES, 0, this.pyramidVertexPositionBuffer.numItems);
 	mvMatrix = mvMatrixStack.pop();
 
+	gl.uniform1i(shaders.program.useLightingUniform, true);
+	gl.uniform3fv(shaders.program.ambientColorUniform, this.ambientColor);
+	var adjustedLD = vec3.create();
+	vec3.normalize(adjustedLD, this.lightingDirection);
+	vec3.scale(adjustedLD, adjustedLD, -1);
+	gl.uniform3fv(shaders.program.lightingDirectionUniform, adjustedLD);
+	gl.uniform3fv(shaders.program.directionalColorUniform, this.directionalColor);
+
 	mvMatrixStack.push(mvMatrix);
 	mat4.translate(mvMatrix, mvMatrix, [1.5, 0.0, 0.0]);
 	mat4.rotate(mvMatrix, mvMatrix, this.rCube[0], [1, 0, 0]);
@@ -208,6 +268,11 @@ GameWindow.prototype.draw = function()
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVertexPositionBuffer);
 	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute,
 		this.cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	// Set vertex normals
+	gl.enableVertexAttribArray(shaders.program.vertexNormalAttribute);
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.cubeVertexNormalBuffer);
+	gl.vertexAttribPointer(shaders.program.vertexNormalAttribute,
+		this.cubeVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	// Cube uses texture only, disable color and use white
 	gl.disableVertexAttribArray(shaders.program.vertexColorAttribute);
 	gl.vertexAttrib4f(shaders.program.vertexColorAttribute, 1, 1, 1, 1);
@@ -217,7 +282,7 @@ GameWindow.prototype.draw = function()
 	gl.vertexAttribPointer(shaders.program.textureCoordAttribute,
 		this.cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	gl.activeTexture(gl.TEXTURE0);
-	texture_cache.bind("textures/gamebuttons2.dds");
+	texture_cache.bind("textures/portraits1.dds");
 	gl.uniform1i(shaders.program.samplerUniform, 0);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.cubeVertexIndexBuffer);
 	setMatrixUniforms();

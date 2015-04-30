@@ -78,6 +78,7 @@ function Shaders()
 		gl.useProgram(program);
 
 		program.vertexPositionAttribute = gl.getAttribLocation(program, "aVertexPosition");
+		program.vertexNormalAttribute = gl.getAttribLocation(program, "aVertexNormal");
 		program.vertexColorAttribute = gl.getAttribLocation(program, "aVertexColor");
 		program.textureCoordAttribute = gl.getAttribLocation(program, "aTextureCoord");
 
@@ -85,6 +86,11 @@ function Shaders()
 
 		program.pMatrixUniform = gl.getUniformLocation(program, "uPMatrix");
 		program.mvMatrixUniform = gl.getUniformLocation(program, "uMVMatrix");
+		program.useLightingUniform = gl.getUniformLocation(program, "uUseLighting");
+		program.nMatrixUniform = gl.getUniformLocation(program, "uNMatrix");
+		program.ambientColorUniform = gl.getUniformLocation(program, "uAmbientColor");
+		program.lightingDirectionUniform = gl.getUniformLocation(program, "uLightingDirection");
+		program.directionalColorUniform = gl.getUniformLocation(program, "uDirectionalColor");
 
 		_shaders_obj.ready = true;
 	}
