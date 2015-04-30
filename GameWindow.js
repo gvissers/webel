@@ -14,7 +14,7 @@ function GameWindow()
 	this.cubeVertexIndexBuffer = null;
 
 	this.ambientColor = [1.0, 0.0, 0.0];
-	this.lightingDirection = [1.0, 1.0, 0.0];
+	this.lightingDirection = [-1.0, -1.0, -1.0];
 	this.directionalColor = [0.0, 1.0, 1.0];
 
 	this._construct();
@@ -231,6 +231,9 @@ GameWindow.prototype.draw = function()
 {
 	gl.uniform1i(shaders.program.useLightingUniform, false);
 
+	gl.disable(gl.BLEND);
+	gl.enable(gl.DEPTH_TEST);
+
 	mvMatrixStack.push(mvMatrix);
 	mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, 0.0]);
 	mat4.rotate(mvMatrix, mvMatrix, this.rPyramid, [1, 1, 0]);
@@ -259,6 +262,10 @@ GameWindow.prototype.draw = function()
 	vec3.scale(adjustedLD, adjustedLD, -1);
 	gl.uniform3fv(shaders.program.lightingDirectionUniform, adjustedLD);
 	gl.uniform3fv(shaders.program.directionalColorUniform, this.directionalColor);
+
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+	gl.enable(gl.BLEND);
+	gl.disable(gl.DEPTH_TEST);
 
 	mvMatrixStack.push(mvMatrix);
 	mat4.translate(mvMatrix, mvMatrix, [1.5, 0.0, 0.0]);

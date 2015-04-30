@@ -83,7 +83,6 @@ function webGLStart()
 	game_window = new GameWindow();
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	gl.enable(gl.DEPTH_TEST);
 
 	document.onkeydown = function(event) { key_handler.handleKeyDown(event); }
 	document.onkeyup = function(event) { key_handler.handleKeyUp(event); }
