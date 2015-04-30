@@ -48,8 +48,9 @@ function TextureCache()
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.generateMipmap(gl.TEXTURE_2D);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 	}
 
 	/**
@@ -77,11 +78,14 @@ function TextureCache()
 			return;
 
 		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.compressedTexImage2D(gl.TEXTURE_2D, 0, format, dds.width, dds.height,
-			0, dds.data[0]);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-		//gl.generateMipmap(gl.TEXTURE_2D);
+		for (var level = 0; level < dds.mipmaps.length; ++level)
+		{
+			gl.compressedTexImage2D(gl.TEXTURE_2D, level, format,
+				dds.mipmaps[level].width, dds.mipmaps[level].height, 0,
+				dds.mipmaps[level].data);
+		}
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 	}
 
 	/**

@@ -13,7 +13,7 @@ function DDS(data)
 	/// Format code of the data
 	this.format = -1;
 	/// Byte arrays for the compressed texture data, for each mipmap level
-	this.data = [];
+	this.mipmaps = [];
 	/// Flag indicating whether the data was sucessfully loaded
 	this.ok = false;
 
@@ -60,7 +60,11 @@ function DDS(data)
 	for (var level = 0; level < nrMipmaps; ++level)
 	{
 		var length = ((width+3)>>2) * ((height+3)>>2) * blockSize;
-		this.data[level] = new Uint8Array(data, offset, length);
+		this.mipmaps[level] = {
+			width: width,
+			height: height,
+			data: new Uint8Array(data, offset, length)
+		};
 		offset += length;
 		width = Math.max(width>>1, 1);
 		height = Math.max(height>>1, 1);

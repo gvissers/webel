@@ -217,7 +217,7 @@ GameWindow.prototype.draw = function()
 	gl.vertexAttribPointer(shaders.program.textureCoordAttribute,
 		this.cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	gl.activeTexture(gl.TEXTURE0);
-	texture_cache.bind("textures/items1.dds");
+	texture_cache.bind("textures/gamebuttons2.dds");
 	gl.uniform1i(shaders.program.samplerUniform, 0);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.cubeVertexIndexBuffer);
 	setMatrixUniforms();
