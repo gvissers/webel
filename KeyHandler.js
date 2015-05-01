@@ -88,11 +88,19 @@ KeyHandler.prototype.handleKeyUp = function(event)
  */
 KeyHandler.prototype.handleKeys = function()
 {
+	if (this.keys_pressed[KeyHandler.KeyCode.Left])
+		camera.moveLeft();
+	if (this.keys_pressed[KeyHandler.KeyCode.Right])
+		camera.moveRight();
+	if (this.keys_pressed[KeyHandler.KeyCode.Up])
+		camera.moveUp();
+	if (this.keys_pressed[KeyHandler.KeyCode.Down])
+		camera.moveDown();
 	if (this.keys_pressed[KeyHandler.KeyCode.PageUp])
 		camera.zoomOut();
 	if (this.keys_pressed[KeyHandler.KeyCode.PageDown])
 		camera.zoomIn();
-	game_window.handleKeys(this.keys_pressed);
+	//game_window.handleKeys(this.keys_pressed);
 }
 
 

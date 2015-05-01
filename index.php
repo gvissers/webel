@@ -13,6 +13,7 @@
 		<script type="text/javascript" src="DDS.js"></script>
 		<script type="text/javascript" src="GameMap.js"></script>
 		<script type="text/javascript" src="GameWindow.js"></script>
+		<script type="text/javascript" src="HeightMap.js"></script>
 		<script type="text/javascript" src="GroundTile.js"></script>
 		<script type="text/javascript" src="GroundTileMap.js"></script>
 		<script type="text/javascript" src="KeyHandler.js"></script>

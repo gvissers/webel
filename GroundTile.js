@@ -11,7 +11,7 @@ function GroundTile(number)
 /// Size of a ground tile in walkable positions
 GroundTile.size = 6;
 /// Size of a ground tile in "meters"
-GroundTile.size_meters = 0.5 * GroundTile.size;
+GroundTile.size_meters = HeightMap.tile_size_meters * GroundTile.size;
 /// Tile number used for invalid or no tile
 GroundTile.invalid_number = 255;
 /// z-coordinate of a normal ground tile

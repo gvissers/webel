@@ -56,7 +56,7 @@ function drawScene()
 	mat4.perspective(pMatrix, 45, gl.viewportWidth/gl.viewportHeight, 0.1, 100.0);
 
 	mat4.identity(mvMatrix);
-	mat4.translate(mvMatrix, mvMatrix, camera.position);
+	mat4.translate(mvMatrix, mvMatrix, camera.inv_pos);
 
 	map.draw();
 }
