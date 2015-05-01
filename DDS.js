@@ -17,7 +17,7 @@ function DDS(data)
 	/// Flag indicating whether the data was sucessfully loaded
 	this.ok = false;
 
-	var header = new Int32Array(data, 0, this.header_length);
+	var header = new Uint32Array(data, 0, DDS.header_length);
 	if (header[0] != this.fourCC("DDS "))
 	{
 		logError("Not a DDS file");
