@@ -17,22 +17,22 @@ Camera.zoom_delta = 1.0;
 /// Move the camera to the right
 Camera.prototype.moveRight = function()
 {
-	this.inv_pos[0] -= HeightMap.tile_size_meters;
+	this.inv_pos[0] -= ElevationMap.tile_size_meters;
 }
 /// Move the camera to the left
 Camera.prototype.moveLeft = function()
 {
-	this.inv_pos[0] += HeightMap.tile_size_meters;
+	this.inv_pos[0] += ElevationMap.tile_size_meters;
 }
 /// Move the camera up
 Camera.prototype.moveUp = function()
 {
-	this.inv_pos[1] -= HeightMap.tile_size_meters;
+	this.inv_pos[1] -= ElevationMap.tile_size_meters;
 }
 /// Move the camera down
 Camera.prototype.moveDown = function()
 {
-	this.inv_pos[1] += HeightMap.tile_size_meters;
+	this.inv_pos[1] += ElevationMap.tile_size_meters;
 }
 /// Zoom in on the scene by a single step
 Camera.prototype.zoomIn = function()

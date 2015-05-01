@@ -12,7 +12,9 @@ function GameMap(fname)
 	/// Color of ambient light
 	this.ambientColor = [1.0, 1.0, 1.0];
 	/// Ground tiles on this map
-	this.tiles = null;
+	this.tile_map = null;
+	/// Elevation map
+	this.elevation_map = null;
 
 	$.ajax(fname, {
 		dataType: "arraybuffer",
@@ -38,7 +40,9 @@ GameMap.prototype._construct = function(data)
 	var tile_map_width = view.getUint32(4, true);
 	var tile_map_height = view.getUint32(8, true);
 	var tile_map_offset = view.getUint32(12, true);
-	var height_map_offset = view.getUint32(16, true);
+	var elev_map_width = GroundTile.size * tile_map_width;
+	var elev_map_height = GroundTile.size * tile_map_height;
+	var elev_map_offset = view.getUint32(16, true);
 	var obj_3d_size = view.getUint32(20, true);
 	var obj_3d_count = view.getUint32(24, true);
 	var obj_3d_offset = view.getUint32(28, true);
@@ -59,6 +63,8 @@ GameMap.prototype._construct = function(data)
 
 	this.tile_map = new GroundTileMap(tile_map_width, tile_map_height,
 		new Uint8Array(data, tile_map_offset, tile_map_width*tile_map_height));
+	this.elevation_map = new ElevationMap(elev_map_width, elev_map_height,
+		new Uint8Array(data, elev_map_offset, elev_map_width*elev_map_height));
 
 	console.log(this);
 };
