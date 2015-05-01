@@ -40,6 +40,8 @@ function setMatrixUniforms()
 	gl.uniformMatrix3fv(shaders.program.nMatrixUniform, false, normalMatrix);
 }
 
+var map;
+
 function drawScene()
 {
 	if (!shaders.ready)
@@ -56,13 +58,13 @@ function drawScene()
 	mat4.identity(mvMatrix);
 	mat4.translate(mvMatrix, mvMatrix, camera.position);
 
-	game_window.draw();
+	map.draw();
 }
 
 function animate()
 {
 	var timeNow = new Date().getTime();
-	game_window.animate(timeNow);
+	//game_window.animate(timeNow);
 }
 
 function tick()
@@ -86,6 +88,8 @@ function webGLStart()
 
 	document.onkeydown = function(event) { key_handler.handleKeyDown(event); }
 	document.onkeyup = function(event) { key_handler.handleKeyUp(event); }
+
+	map = new GameMap("maps/startmap.elm");
 
 	tick();
 }
