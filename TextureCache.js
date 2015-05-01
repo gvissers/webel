@@ -144,7 +144,21 @@ function TextureCache()
 	}
 
 	// Check if we have the required GL extensions for handling compressed textures
-	_extensions = gl.getExtension("WEBKIT_WEBGL_compressed_texture_s3tc");
+	var ext_names = [
+		"WEBGL_compressed_texture_s3tc",
+		"MOZ_WEBGL_compressed_texture_s3tc",
+		"WEBKIT_WEBGL_compressed_texture_s3tc"
+	];
+	_extensions = {};
+	for (var i = 0; i < ext_names.length; ++i)
+	{
+		var ext = gl.getExtension(ext_names[i]);
+		if (ext)
+		{
+			for (var f in ext)
+				_extensions[f] = ext[f];
+		}
+	}
 	if (_extensions)
 	{
 		var formats = gl.getParameter(gl.COMPRESSED_TEXTURE_FORMATS);
