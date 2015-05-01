@@ -71,11 +71,18 @@ function TextureCache()
 
 		var format;
 		if (dds.format == "DXT1" && _have_dxt1_support)
+		{
 			format = _extensions.COMPRESSED_RGBA_S3TC_DXT1_EXT;
+		}
 		else if (dds.format == "DXT5" && _have_dxt5_support)
+		{
 			format = _extensions.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+		}
 		else
+		{
+			logError("No support for " + dds.format + " compressed textures");
 			return;
+		}
 
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 		for (var level = 0; level < dds.mipmaps.length; ++level)
