@@ -1,5 +1,6 @@
 <?php
 
+header('Content-Type: application/json');
 try
 {
 	if (!isset($_REQUEST['fname']))

@@ -15,6 +15,8 @@ function GameMap(fname)
 	this.tile_map = null;
 	/// Elevation map
 	this.elevation_map = null;
+	/// two-dimensional objects
+	this.objects_2d = [];
 
 	$.ajax(fname, {
 		dataType: "arraybuffer",
@@ -65,6 +67,22 @@ GameMap.prototype._construct = function(data)
 		new Uint8Array(data, tile_map_offset, tile_map_width*tile_map_height));
 	this.elevation_map = new ElevationMap(elev_map_width, elev_map_height,
 		new Uint8Array(data, elev_map_offset, elev_map_width*elev_map_height));
+
+	var off = obj_2d_offset;
+	for (var i = 0; i < obj_2d_count; ++i, off += obj_2d_size)
+	{
+		var str = '';
+		for (var j = off; j < off+80; ++j)
+		{
+			var byte = view.getUint8(j);
+			if (byte == 0)
+				break;
+			str += String.fromCharCode(byte);
+		}
+		var pos = new Float32Array(data, off+80, 3);
+		var rot = new Float32Array(data, off+92, 3);
+		this.objects_2d.push(new Object2D(str, pos, rot));
+	}
 
 	console.log(this);
 };

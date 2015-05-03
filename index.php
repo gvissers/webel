@@ -17,6 +17,8 @@
 		<script type="text/javascript" src="GroundTile.js"></script>
 		<script type="text/javascript" src="GroundTileMap.js"></script>
 		<script type="text/javascript" src="KeyHandler.js"></script>
+		<script type="text/javascript" src="Object2D.js"></script>
+		<script type="text/javascript" src="Object2DDefCache.js"></script>
 		<script type="text/javascript" src="Stack.js"></script>
 		<script type="text/javascript" src="Shaders.js"></script>
 		<script type="text/javascript" src="TextureCache.js"></script>

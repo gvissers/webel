@@ -6,6 +6,7 @@ var lastTime = 0;
 var mvMatrixStack = new Stack(mat4.clone);
 var shaders = new Shaders();
 var texture_cache;
+var object_2d_def_cache;
 var camera = new Camera();
 var key_handler = new KeyHandler();
 
@@ -82,6 +83,7 @@ function webGLStart()
 
 	shaders.init();
 	texture_cache = new TextureCache();
+	object_2d_def_cache = new Object2DDefCache();
 	game_window = new GameWindow();
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
