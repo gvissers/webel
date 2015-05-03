@@ -1,9 +1,8 @@
 var gl;
-var mvMatrix = mat4.create();
+var model_view_matrix = new ModelViewMatrix();
 var pMatrix = mat4.create();
 var game_window;
 var lastTime = 0;
-var mvMatrixStack = new Stack(mat4.clone);
 var shaders = new Shaders();
 var texture_cache;
 var object_2d_def_cache;
@@ -34,11 +33,9 @@ function initGL(canvas)
 function setMatrixUniforms()
 {
 	gl.uniformMatrix4fv(shaders.program.pMatrixUniform, false, pMatrix);
-	gl.uniformMatrix4fv(shaders.program.mvMatrixUniform, false, mvMatrix);
-
-	var normalMatrix = mat3.create();
-	mat3.normalFromMat4(normalMatrix, mvMatrix);
-	gl.uniformMatrix3fv(shaders.program.nMatrixUniform, false, normalMatrix);
+	model_view_matrix.setUniform();
+	gl.uniformMatrix3fv(shaders.program.nMatrixUniform, false,
+		model_view_matrix.normal());
 }
 
 var map;
@@ -56,8 +53,8 @@ function drawScene()
 
 	mat4.perspective(pMatrix, 45, gl.viewportWidth/gl.viewportHeight, 0.1, 100.0);
 
-	mat4.identity(mvMatrix);
-	mat4.translate(mvMatrix, mvMatrix, camera.inv_pos);
+	model_view_matrix.setIdentity();
+	model_view_matrix.translate(camera.inv_pos);
 
 	map.draw();
 }
@@ -84,7 +81,6 @@ function webGLStart()
 	shaders.init();
 	texture_cache = new TextureCache();
 	object_2d_def_cache = new Object2DDefCache();
-	game_window = new GameWindow();
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
