@@ -54,7 +54,7 @@ GameMap.prototype._construct = function(data)
 	var light_size = view.getUint32(44, true);
 	var light_count = view.getUint32(48, true);
 	var light_offset = view.getUint32(52, true);
-	this.dungeon = view.getUint8(56, true);
+	this.dungeon = view.getUint8(56);
 	this.ambientColor[0] = view.getFloat32(60, true);
 	this.ambientColor[1] = view.getFloat32(64, true);
 	this.ambientColor[2] = view.getFloat32(68, true);
@@ -71,14 +71,7 @@ GameMap.prototype._construct = function(data)
 	var off = obj_2d_offset;
 	for (var i = 0; i < obj_2d_count; ++i, off += obj_2d_size)
 	{
-		var str = '';
-		for (var j = off; j < off+80; ++j)
-		{
-			var byte = view.getUint8(j);
-			if (byte == 0)
-				break;
-			str += String.fromCharCode(byte);
-		}
+		var str = extractString(view, off, 80);
 		var pos = new Float32Array(data, off+80, 3);
 		var rot = new Float32Array(data, off+92, 3);
 		this.objects_2d.push(new Object2D(str, pos, rot));

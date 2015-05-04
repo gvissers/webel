@@ -30,3 +30,25 @@ function unfourCC(val)
 		(val >> 24) & 0xff
 	);
 }
+
+/**
+ * Extract string
+ *
+ * Extract a zero-terminated ASCII string from byte buffer @a buf of length
+ * @a len.
+ * @param buf The buffer to read the string from
+ * @param len The number of bytes in the buffer
+ * @return String contents of the buffer
+ */
+function extractString(buf, off, len)
+{
+	var str = '';
+	for (var j = off; j < off+len; ++j)
+	{
+		var byte = buf.getUint8(j);
+		if (byte == 0)
+			break;
+		str += String.fromCharCode(byte);
+	}
+	return str;
+}
