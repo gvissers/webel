@@ -3,6 +3,7 @@
  */
 function Object2DDefCache()
 {
+	/// The cache itself, mapping file name to definition
 	this._cache = {};
 }
 
@@ -18,17 +19,22 @@ Object2DDefCache.Type = {
 };
 
 /**
- * Get a 2d object definition
+ * Set a 2d object definition
  *
- * Get a 2d object definition, If it is not in the cache yet, it is requested
- * from the server.
+ * Set a 2d object definition for object @a obj. If the definition is not in
+ * the cache yet, it is requested from the server.
+ * @param fname File name of the definition to retrieve
+ * @param obj   2D object for which to set the definition
  */
-Object2DDefCache.prototype.get = function(fname)
+Object2DDefCache.prototype.get = function(fname, obj)
 {
-	if (!(fname in this._cache))
+	if (fname in this._cache)
+	{
+		obj.setDefinition(this._cache[fname]);
+	}
+	else
 	{
 		var cache = this._cache;
-		cache[fname] = {}
 		$.ajax(fname, {
 			type: "json",
 			error: function() {
@@ -41,11 +47,12 @@ Object2DDefCache.prototype.get = function(fname)
 				}
 				else
 				{
-					for (var key in def)
-						cache[fname][key] = def[key];
+					if (def.texture_fname)
+						def.texture = texture_cache.get(def.texture_fname);
+					cache[fname] = def;
+					obj.setDefinition(def);
 				}
 			}
 		});
 	}
-	return this._cache[fname];
-}
+};

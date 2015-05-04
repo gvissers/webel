@@ -92,6 +92,8 @@ function Shaders()
 		program.lightingDirectionUniform = gl.getUniformLocation(program, "uLightingDirection");
 		program.directionalColorUniform = gl.getUniformLocation(program, "uDirectionalColor");
 
+		program.alpha_low = gl.getUniformLocation(program, "alpha_low");
+
 		_shaders_obj.ready = true;
 	}
 

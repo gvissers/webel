@@ -94,5 +94,17 @@ GameMap.prototype._construct = function(data)
  */
 GameMap.prototype.draw = function()
 {
+	// All objects are textured, disable vertex coloring and enable texture
+	// coordinates
+	gl.disableVertexAttribArray(shaders.program.vertexColorAttribute);
+	gl.vertexAttrib4f(shaders.program.vertexColorAttribute, 1, 1, 1, 1);
+	gl.enableVertexAttribArray(shaders.program.textureCoordAttribute);
+
+	gl.disable(gl.BLEND);
+	gl.enable(gl.DEPTH_TEST);
+
 	this.tile_map.draw();
+	for (var i = 0; i < this.objects_2d.length; ++i)
+		this.objects_2d[i].draw();
+	gl.uniform1f(shaders.program.alpha_low, 0.0);
 }

@@ -9,6 +9,12 @@ function ModelViewMatrix()
 	this.stack = [];
 }
 
+/// Multiply the model view matrix with mat
+ModelViewMatrix.prototype.multiply = function(mat)
+{
+	mat4.multiply(this.matrix, this.matrix, mat);
+}
+
 /// Return the normal matrix for this model view
 ModelViewMatrix.prototype.normal = function()
 {

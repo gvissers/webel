@@ -78,14 +78,10 @@ GroundTileMap.prototype.draw = function()
 {
 	gl.uniform1i(shaders.program.useLightingUniform, false);
 
-	gl.disable(gl.BLEND);
-	gl.enable(gl.DEPTH_TEST);
-
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
 	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute, 3,
 		gl.FLOAT, false, 0, 0);
 
-	gl.enableVertexAttribArray(shaders.program.textureCoordAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.texture_coord_buffer);
 	gl.vertexAttribPointer(shaders.program.textureCoordAttribute, 2,
 		gl.FLOAT, false, 0, 0);
