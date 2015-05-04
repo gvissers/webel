@@ -8,6 +8,7 @@ var texture_cache;
 var object_2d_def_cache;
 var camera = new Camera();
 var key_handler = new KeyHandler();
+var fps_counter = new FPSCounter(60, new Date().getTime());
 
 function logError(msg)
 {
@@ -61,10 +62,17 @@ function drawScene()
 	map.draw();
 }
 
+var lastFPS = new Date().getTime();
 function animate()
 {
 	var timeNow = new Date().getTime();
-	//game_window.animate(timeNow);
+
+	fps_counter.update(timeNow);
+	if (timeNow - lastFPS > 1000)
+	{
+		console.log(fps_counter.get());
+		lastFPS = timeNow;
+	}
 }
 
 function tick()

@@ -12,6 +12,7 @@
 		<script type="text/javascript" src="Camera.js"></script>
 		<script type="text/javascript" src="DDS.js"></script>
 		<script type="text/javascript" src="ElevationMap.js"></script>
+		<script type="text/javascript" src="FPSCounter.js"></script>
 		<script type="text/javascript" src="GameMap.js"></script>
 <!--
 		<script type="text/javascript" src="GameWindow.js"></script>
@@ -30,6 +31,6 @@
 	</head>
 
 	<body onload="webGLStart();">
-		<canvas id="webel-canvas" style="border: none;" width="500" height="500"></canvas>
+		<canvas id="webel-canvas" style="border: none;" width="640" height="480"></canvas>
 	</body>
 </html>
