@@ -18,7 +18,7 @@ function initGL(canvas)
 {
 	try
 	{
-		gl = WebGLUtils.setupWebGL(canvas);
+		gl = WebGLUtils.setupWebGL(canvas, {alpha: false});
 		gl.viewportWidth = canvas.width;
 		gl.viewportHeight = canvas.height;
 	}
@@ -55,6 +55,8 @@ function drawScene()
 
 	model_view_matrix.setIdentity();
 	model_view_matrix.translate(camera.inv_pos);
+
+	setMatrixUniforms();
 
 	map.draw();
 }
