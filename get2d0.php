@@ -46,7 +46,7 @@ try
 		$file_width = 1;
 		$file_height = 1;
 		$data = file_get_contents($fname_2d0);
-		$res = array();
+		$res = array('alpha_test' => 0.18);
 		foreach(explode("\n", $data) as $line)
 		{
 			$line = trim($line);
@@ -58,7 +58,7 @@ try
 			switch ($key)
 			{
 				case 'texture':
-					$res[$key] = dirname($basename) . '/' . $val;
+					$res['texture_fname'] = dirname($basename) . '/' . $val;
 					break;
 				case 'file_x_len':
 					$file_width = $val;
@@ -67,16 +67,20 @@ try
 					$file_height = $val;
 					break;
 				case 'x_size':
-					$res['width'] = $val;
+					$res['width'] = floatval($val);
 					break;
 				case 'y_size':
-					$res['height'] = $val;
+					$res['height'] = floatval($val);
 					break;
 				case 'type':
 					$val = strtoupper($val);
 					if (!isset($types[$val]))
 						$val = 'INVALID';
 					$res['type'] = $types[$val];
+					break;
+				case 'alpha_test':
+					if ($val > 0)
+						$res['alpha_test'] = $val;
 					break;
 				default:
 					$res[$key] = $val;
