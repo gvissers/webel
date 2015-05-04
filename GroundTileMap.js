@@ -22,9 +22,9 @@ function GroundTileMap(width, height, tiles)
 	var texture_coords = [];
 	var indices = [];
 	var tile_idx = 0;
-	for (var ix = 0; ix < this.width; ++ix)
+	for (var iy = 0; iy < this.height; ++iy)
 	{
-		for (var iy = 0; iy < this.height; ++iy, ++tile_idx)
+		for (var ix = 0; ix < this.width; ++ix, ++tile_idx)
 		{
 			var tile = this.tiles[tile_idx];
 			if (!tile.isValid())
@@ -76,11 +76,6 @@ GroundTileMap.prototype.get = function(x, y)
 /// Draw the tiles in this tile map
 GroundTileMap.prototype.draw = function()
 {
-	setMatrixUniforms();
-
-	gl.disableVertexAttribArray(shaders.program.vertexColorAttribute);
-	gl.vertexAttrib4f(shaders.program.vertexColorAttribute, 1, 1, 1, 1);
-
 	gl.uniform1i(shaders.program.useLightingUniform, false);
 
 	gl.disable(gl.BLEND);
