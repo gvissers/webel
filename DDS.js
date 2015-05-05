@@ -44,7 +44,7 @@ function DDS(data)
 			blockSize = 16;
 			break;
 		default:
-			logError("Unsupported DDS format " + format);
+			logError("Unsupported DDS format " + this.format);
 			return;
 	}
 
