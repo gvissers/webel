@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Class for reading DDS files
  *
@@ -46,7 +48,7 @@ function DDS(data)
 			return;
 	}
 
-	nrMipmaps = 1;
+	var nrMipmaps = 1;
 	var flags = header[2];
 	if (flags & DDS.Flags.DDSD_MIPMAPCOUNT)
 		nrMipmaps = Math.max(nrMipmaps, header[7]);

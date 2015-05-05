@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Cache for texture objects
  *
@@ -65,7 +67,7 @@ function TextureCache()
 	 */
 	function _handleCompressedImageLoad(texture, data)
 	{
-		dds = new DDS(data);
+		var dds = new DDS(data);
 		if (!dds.ok)
 			return;
 

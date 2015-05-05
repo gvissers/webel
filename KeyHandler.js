@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Class to handle keyboard input
  */

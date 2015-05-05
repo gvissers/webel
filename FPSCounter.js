@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * FPS counter
  *

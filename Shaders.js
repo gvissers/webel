@@ -1,9 +1,14 @@
+"use strict";
+
+/**
+ * Class to load and use GLSL shaders
+ */
 function Shaders()
 {
 	var _shaders_obj = this;
 	var _status = {
-		"shaders/shader-fs.glsl": this.UNINITIALIZED,
-		"shaders/shader-vs.glsl": this.UNINITIALIZED
+		"shaders/shader-fs.glsl": Shaders.Status.UNINITIALIZED,
+		"shaders/shader-vs.glsl": Shaders.Status.UNINITIALIZED
 	};
 
 	this.ready = false;
@@ -23,15 +28,15 @@ function Shaders()
 		else
 		{
 			logError("Unknown shader type for file " + fname);
-			_status[fname] = this.ERROR;
+			_status[fname] = Shaders.Status.ERROR;
 			return;
 		}
 
-		_status[fname] = this.IN_PROGRESS;
+		_status[fname] = Shaders.Status.IN_PROGRESS;
 		$.ajax(fname, {
 			error: function() {
 				logError("Failed to get shader source file " + fname);
-				_status[fname] = Shaders.ERROR;
+				_status[fname] = Shaders.Status.ERROR;
 			},
 			success: function(str) {
 				var shader = gl.createShader(type);
@@ -42,12 +47,12 @@ function Shaders()
 				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
 				{
 					logError("Failed to compile shader: " + gl.getShaderInfoLog(shader));
-					_status[fname] = Shaders.ERROR;
+					_status[fname] = Shaders.Status.ERROR;
 				}
 				else
 				{
 					gl.attachShader(_shaders_obj.program, shader);
-					_status[fname] = Shaders.OK;
+					_status[fname] = Shaders.Status.OK;
 				}
 			}
 		});
@@ -59,12 +64,12 @@ function Shaders()
 		{
 			switch (_status[fname])
 			{
-				case this.UNINITIALIZED:
-				case this.IN_PROGRESS:
+				case Shaders.Status.UNINITIALIZED:
+				case Shaders.Status.IN_PROGRESS:
 					setTimeout(_finishShaders, 100);
-				case this.ERROR:
+				case Shaders.Status.ERROR:
 					return;
-				case this.OK:
+				case Shaders.Status.OK:
 				default:
 					/* continue */
 			}
@@ -108,7 +113,9 @@ function Shaders()
 	};
 }
 
-Shaders.UNINITIALIZED = -2;
-Shaders.IN_PROGRESS   = -1;
-Shaders.OK            = 0;
-Shaders.ERROR         = 1;
+Shaders.Status = {
+	UNINITIALIZED: -2,
+	IN_PROGRESS:   -1,
+	OK:            0,
+	ERROR:         1
+};

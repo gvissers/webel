@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Cache for 2d object definitions
  */
@@ -36,7 +38,7 @@ Object2DDefCache.prototype.get = function(fname, obj)
 	{
 		var cache = this._cache;
 		$.ajax(fname, {
-			type: "json",
+			dataType: "json",
 			error: function() {
 				logError("Failed to get 2d object definition " + fname);
 			},

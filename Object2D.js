@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Class for 2-dimensional objects on the game map
  */
@@ -45,7 +47,7 @@ Object2D.prototype.setDefinition = function(def)
 	var y0 = this.def.type == Object2DDefCache.Type.GROUND ? -0.5 * this.def.height : 0.0;
 	var y1 = y0 + this.def.height;
 
-	vertices = [
+	var vertices = [
 		x0, y0, 0,
 		x0, y1, 0,
 		x1, y1, 0,
@@ -53,10 +55,10 @@ Object2D.prototype.setDefinition = function(def)
 		x1, y1, 0,
 		x1, y0, 0
 	];
-	transformed_vertices = [];
+	var transformed_vertices = [];
 	for (var i = 0; i < vertices.length; i += 3)
 	{
-		v = vec3.fromValues(vertices[i], vertices[i+1], vertices[i+2]);
+		var v = vec3.fromValues(vertices[i], vertices[i+1], vertices[i+2]);
 		vec3.transformMat4(v, v, transform);
 		transformed_vertices.push(v[0]);
 		transformed_vertices.push(v[1]);
@@ -66,7 +68,7 @@ Object2D.prototype.setDefinition = function(def)
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(transformed_vertices),
 		gl.STATIC_DRAW);
-	texture_coords = [
+	var texture_coords = [
 		this.def.u_start, this.def.v_start,
 		this.def.u_start, this.def.v_end,
 		this.def.u_end, this.def.v_end,

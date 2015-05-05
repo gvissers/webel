@@ -1,3 +1,5 @@
+"use strict";
+
 var gl;
 var model_view_matrix = new ModelViewMatrix();
 var pMatrix = mat4.create();

@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Convert a four-CC string to integer
  *

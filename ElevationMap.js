@@ -1,3 +1,8 @@
+"use strict";
+
+/**
+ * Class for the map of elevation levels on a game map
+ */
 function ElevationMap(width, height, elevations)
 {
 	/// Width of this map (nr of tiles in x direction)

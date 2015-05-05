@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Class for tile map
  *
@@ -93,11 +95,11 @@ GroundTileMap.prototype.draw = function()
 	var idx = 0;
 	for (var i = 0; i < this.width*this.height; ++i)
 	{
-		if (this.tiles[i].isValid())
-		{
-			gl.bindTexture(gl.TEXTURE_2D, this.tiles[i].texture);
-			gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 12*idx);
-			++idx;
-		}
+		if (!this.tiles[i].isValid())
+			continue;
+
+		gl.bindTexture(gl.TEXTURE_2D, this.tiles[i].texture);
+		gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 12*idx);
+		++idx;
 	}
 }

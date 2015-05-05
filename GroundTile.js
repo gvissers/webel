@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Class for ground tiles on a game map
  */

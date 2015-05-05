@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Class for the model view matrix
  */
