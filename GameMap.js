@@ -18,7 +18,7 @@ function GameMap(fname)
 	/// Elevation map
 	this.elevation_map = null;
 	/// two-dimensional objects
-	this.objects_2d = [];
+	this.objects_2d = new Object2DMap();
 	/// three-dimensional objects
 	this.objects_3d = [];
 
@@ -78,8 +78,9 @@ GameMap.prototype._construct = function(data)
 		var str = extractString(view, off, 80);
 		var pos = new Float32Array(data, off+80, 3);
 		var rot = new Float32Array(data, off+92, 3);
-		this.objects_2d.push(new Object2D(str, pos, rot));
+		this.objects_2d.add(new Object2D(str, pos, rot));
 	}
+	this.objects_2d.setAllDefinitions();
 
 	var off = obj_3d_offset;
 	for (var i = 0; i < obj_3d_count; ++i, off += obj_3d_size)
@@ -98,6 +99,9 @@ GameMap.prototype._construct = function(data)
 	console.log(this);
 };
 
+var ic = 0;
+var dtt = 0;
+var dt2 = 0;
 /**
  * Draw the map
  *
@@ -115,8 +119,5 @@ GameMap.prototype.draw = function()
 	gl.enable(gl.DEPTH_TEST);
 
 	this.tile_map.draw();
-
-	//for (var i = 0; i < this.objects_2d.length; ++i)
-	//	this.objects_2d[i].draw();
-	//gl.uniform1f(shaders.program.alpha_low, 0.0);
+	this.objects_2d.draw();
 }
