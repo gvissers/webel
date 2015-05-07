@@ -46,8 +46,8 @@ GameMap.prototype._construct = function(data)
 	var tile_map_width = view.getUint32(4, true);
 	var tile_map_height = view.getUint32(8, true);
 	var tile_map_offset = view.getUint32(12, true);
-	var elev_map_width = GroundTile.size * tile_map_width;
-	var elev_map_height = GroundTile.size * tile_map_height;
+	var elev_map_width = GroundTileMap.tile_size * tile_map_width;
+	var elev_map_height = GroundTileMap.tile_size * tile_map_height;
 	var elev_map_offset = view.getUint32(16, true);
 	var obj_3d_size = view.getUint32(20, true);
 	var obj_3d_count = view.getUint32(24, true);
@@ -115,7 +115,8 @@ GameMap.prototype.draw = function()
 	gl.enable(gl.DEPTH_TEST);
 
 	this.tile_map.draw();
-	for (var i = 0; i < this.objects_2d.length; ++i)
-		this.objects_2d[i].draw();
-	gl.uniform1f(shaders.program.alpha_low, 0.0);
+
+	//for (var i = 0; i < this.objects_2d.length; ++i)
+	//	this.objects_2d[i].draw();
+	//gl.uniform1f(shaders.program.alpha_low, 0.0);
 }

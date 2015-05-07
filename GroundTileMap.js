@@ -12,31 +12,57 @@ function GroundTileMap(width, height, tiles)
 	this.width = width;
 	/// Height of the map (nr of tiles in y direction)
 	this.height = height;
-	/// Tiles themselves
-	this.tiles = [];
+	/// Offset in index buffer, sorted by texture
+	this.texture_tiles = null;
 
-	// Chromium does not do TypedArray.forEach() yet
-	for (var i = 0; i < tiles.length; ++i)
-		this.tiles.push(new GroundTile(tiles[i]));
+	var tile_idx = 0;
+	var sorted_tiles = {};
+	for (var iy = 0; iy < this.height; ++iy)
+	{
+		for (var ix = 0; ix < this.width; ++ix, ++tile_idx)
+		{
+			var number = tiles[tile_idx];
+			if (number == GroundTileMap.invalid_number)
+				continue;
+
+			if (!(number in sorted_tiles))
+				sorted_tiles[number] = [];
+			sorted_tiles[number].push(tile_idx);
+		}
+	}
 
 	// Set up buffers
 	var vertices = [];
 	var texture_coords = [];
 	var indices = [];
-	var tile_idx = 0;
-	for (var iy = 0; iy < this.height; ++iy)
+	var texture_tiles_offset = 0;
+	this.texture_tiles = [];
+	for (var number in sorted_tiles)
 	{
-		for (var ix = 0; ix < this.width; ++ix, ++tile_idx)
-		{
-			var tile = this.tiles[tile_idx];
-			if (!tile.isValid())
-				continue;
+		var idxs = sorted_tiles[number];
+		var fname = "3dobjects/tile" + number + ".dds";
+		this.texture_tiles.push({
+			texture: texture_cache.get(fname),
+			count: 6*idxs.length,
+			offset: texture_tiles_offset
+		});
+		texture_tiles_offset += idxs.length * 6 * 2;
+		var z;
+		if (number == 0 || (number > 230 && number < 255))
+			z = GroundTileMap.water_elevation;
+		else
+			z = GroundTileMap.normal_elevation;
 
-			var x0 = ix * GroundTile.size_meters;
-			var y0 = iy * GroundTile.size_meters;
-			var x1 = (ix+1) * GroundTile.size_meters;
-			var y1 = (iy+1) * GroundTile.size_meters;
-			var z = tile.elevation();
+		for (var i = 0; i < idxs.length; ++i)
+		{
+			var idx = idxs[i];
+			var iy = Math.floor(idx / this.width);
+			var ix = idx % this.width;
+
+			var x0 = ix * GroundTileMap.tile_size_meters;
+			var y0 = iy * GroundTileMap.tile_size_meters;
+			var x1 = (ix+1) * GroundTileMap.tile_size_meters;
+			var y1 = (iy+1) * GroundTileMap.tile_size_meters;
 			var idx_off = vertices.length/3;
 			vertices = vertices.concat([
 				x0, y0, z,
@@ -56,6 +82,7 @@ function GroundTileMap(width, height, tiles)
 			]);
 		}
 	}
+
 	this.vertex_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -68,6 +95,17 @@ function GroundTileMap(width, height, tiles)
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.index_buffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 }
+
+/// Tile number used for invalid or no tile
+GroundTileMap.invalid_number = 255;
+/// Size of a ground tile in walkable positions
+GroundTileMap.tile_size = 6;
+/// Size of a ground tile in "meters"
+GroundTileMap.tile_size_meters = ElevationMap.tile_size_meters * GroundTileMap.tile_size;
+/// z-coordinate of a normal ground tile
+GroundTileMap.normal_elevation = -0.001;
+/// z-coordinate of a water tile
+GroundTileMap.water_elevation = -0.25;
 
 /// Get the tile at position (@a x, @a y)
 GroundTileMap.prototype.get = function(x, y)
@@ -92,14 +130,10 @@ GroundTileMap.prototype.draw = function()
 
 	gl.uniform1i(shaders.program.samplerUniform, 0);
 
-	var idx = 0;
-	for (var i = 0; i < this.width*this.height; ++i)
+	for (var i = 0; i < this.texture_tiles.length; ++i)
 	{
-		if (!this.tiles[i].isValid())
-			continue;
-
-		gl.bindTexture(gl.TEXTURE_2D, this.tiles[i].texture);
-		gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 12*idx);
-		++idx;
+		gl.bindTexture(gl.TEXTURE_2D, this.texture_tiles[i].texture);
+		gl.drawElements(gl.TRIANGLES, this.texture_tiles[i].count,
+			gl.UNSIGNED_SHORT, this.texture_tiles[i].offset);
 	}
 }
