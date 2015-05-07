@@ -8,9 +8,11 @@ var lastTime = 0;
 var shaders = new Shaders();
 var texture_cache;
 var object_2d_def_cache;
+var object_3d_def_cache;
 var camera = new Camera();
 var key_handler = new KeyHandler();
 var fps_counter = new FPSCounter(60, new Date().getTime());
+var half_lut = new HalfLUT();
 
 function logError(msg)
 {
@@ -93,6 +95,7 @@ function webGLStart()
 	shaders.init();
 	texture_cache = new TextureCache();
 	object_2d_def_cache = new Object2DDefCache();
+	object_3d_def_cache = new Object3DDefCache();
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 

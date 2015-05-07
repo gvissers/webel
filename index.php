@@ -19,10 +19,15 @@
 -->
 		<script type="text/javascript" src="GroundTile.js"></script>
 		<script type="text/javascript" src="GroundTileMap.js"></script>
+		<script type="text/javascript" src="HalfLUT.js"></script>
 		<script type="text/javascript" src="KeyHandler.js"></script>
 		<script type="text/javascript" src="ModelViewMatrix.js"></script>
 		<script type="text/javascript" src="Object2D.js"></script>
 		<script type="text/javascript" src="Object2DDefCache.js"></script>
+		<script type="text/javascript" src="Object3D.js"></script>
+		<script type="text/javascript" src="Object3DDef.js"></script>
+		<script type="text/javascript" src="Object3DDefCache.js"></script>
+		<script type="text/javascript" src="Material.js"></script>
 		<script type="text/javascript" src="Shaders.js"></script>
 		<script type="text/javascript" src="TextureCache.js"></script>
 		<script type="text/javascript" src="util.js"></script>
