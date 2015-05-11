@@ -40,6 +40,7 @@ function DDS(data)
 		case "DXT1":
 			blockSize = 8;
 			break;
+		case "DXT3":
 		case "DXT5":
 			blockSize = 16;
 			break;

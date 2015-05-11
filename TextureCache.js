@@ -14,6 +14,8 @@ function TextureCache()
 	var _extensions;
 	/// Whether we have support for DXT1 compressed textures
 	var _have_dxt1_support = false;
+	/// Whether we have support for DXT3 compressed textures
+	var _have_dxt3_support = false;
 	/// Whether we have support for DXT5 compressed textures
 	var _have_dxt5_support = false;
 
@@ -75,6 +77,10 @@ function TextureCache()
 		if (dds.format == "DXT1" && _have_dxt1_support)
 		{
 			format = _extensions.COMPRESSED_RGBA_S3TC_DXT1_EXT;
+		}
+		else if (dds.format == "DXT3" && _have_dxt3_support)
+		{
+			format = _extensions.COMPRESSED_RGBA_S3TC_DXT3_EXT;
 		}
 		else if (dds.format == "DXT5" && _have_dxt5_support)
 		{
@@ -170,6 +176,9 @@ function TextureCache()
 			{
 				case _extensions.COMPRESSED_RGBA_S3TC_DXT1_EXT:
 					_have_dxt1_support = true;
+					break;
+				case _extensions.COMPRESSED_RGBA_S3TC_DXT3_EXT:
+					_have_dxt3_support = true;
 					break;
 				case _extensions.COMPRESSED_RGBA_S3TC_DXT5_EXT:
 					_have_dxt5_support = true;
