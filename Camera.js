@@ -16,6 +16,8 @@ function Camera()
 	this.zoom_distance = 2.0;
 	/// Inverted rotation of the camera, in degrees
 	this.inv_rot = [-60, 0, 45];
+	/// Bounding box for the camera, objects outsize this box aren't drawn
+	this.bounding_box = null;
 }
 
 /// Distance to move the camera when zooming in or out
@@ -31,6 +33,8 @@ Camera.pos_delta = {
 	270: [-1,  0],
 	315: [-1,  1]
 };
+/// Max distance beyond which objects aren't drawn
+Camera.max_distance = 10;
 
 /// Set the elevation map and position of the camera
 Camera.prototype.set = function(elevation_map, x, y)
@@ -38,6 +42,7 @@ Camera.prototype.set = function(elevation_map, x, y)
 	this.elevation_map = elevation_map;
 	this.tile_pos[0] = x;
 	this.tile_pos[1] = y;
+	this.setBoundingBox();
 };
 
 /// Take a step forward in the current viewing direction
@@ -49,6 +54,7 @@ Camera.prototype.stepForward = function()
 	{
 		this.tile_pos[0] = x;
 		this.tile_pos[1] = y;
+		this.setBoundingBox();
 	}
 };
 /// Take a step backward in the current viewing direction
@@ -60,6 +66,7 @@ Camera.prototype.stepBackward = function()
 	{
 		this.tile_pos[0] = x;
 		this.tile_pos[1] = y;
+		this.setBoundingBox();
 	}
 };
 
@@ -77,6 +84,17 @@ Camera.prototype.rotateRight = function()
 	if (this.inv_rot[2] >= 360)
 		this.inv_rot[2] -= 360;
 };
+
+/// Set the bounding box for the current camera settings
+Camera.prototype.setBoundingBox = function()
+{
+	var x = this.tile_pos[0] * ElevationMap.tile_size_meters;
+	var y = this.tile_pos[1] * ElevationMap.tile_size_meters;
+	this.bounding_box = new BoundingBox(
+		[x - Camera.max_distance, y - Camera.max_distance, Number.NEGATIVE_INFINITY],
+		[x + Camera.max_distance, y + Camera.max_distance, Number.POSITIVE_INFINITY]
+	);
+}
 
 /// Multiply the model view matrix to set the camera position
 Camera.prototype.setModelView = function()
@@ -104,6 +122,6 @@ Camera.prototype.zoomIn = function()
 Camera.prototype.zoomOut = function()
 {
 	this.zoom_distance += Camera.zoom_delta;
-	if (this.zoom_distance > 20)
-		this.zoom_distamce = 10;
+	if (this.zoom_distance > 10)
+		this.zoom_distance = 10;
 };

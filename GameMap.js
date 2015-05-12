@@ -96,6 +96,7 @@ GameMap.prototype._construct = function(data)
 			new Object3D(str, pos, rot, col, scale, self_lit, blended));
 	}
 
+	camera.set(this.elevation_map, elev_map_width>>1, elev_map_height>>1);
 	console.log(this);
 };
 
