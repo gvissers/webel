@@ -39,6 +39,24 @@ ModelViewMatrix.prototype.push = function()
 	this.stack.push(mat4.clone(this.matrix));
 };
 
+/// Rotate the current model view matrix around the X axis
+ModelViewMatrix.prototype.rotateX = function(ang)
+{
+	mat4.rotateX(this.matrix, this.matrix, ang);
+}
+
+/// Rotate the current model view matrix around the Y axis
+ModelViewMatrix.prototype.rotateY = function(ang)
+{
+	mat4.rotateY(this.matrix, this.matrix, ang);
+}
+
+/// Rotate the current model view matrix around the Z axis
+ModelViewMatrix.prototype.rotateZ = function(ang)
+{
+	mat4.rotateZ(this.matrix, this.matrix, ang);
+}
+
 /// Set the model view matrix to the unit matrix
 ModelViewMatrix.prototype.setIdentity = function()
 {

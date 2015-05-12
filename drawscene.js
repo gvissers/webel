@@ -9,13 +9,14 @@ var shaders = new Shaders();
 var texture_cache;
 var object_2d_def_cache;
 var object_3d_def_cache;
-var camera = new Camera();
+var camera = new Camera;
 var key_handler = new KeyHandler();
 var fps_counter = new FPSCounter(60, new Date().getTime());
 var half_lut = new HalfLUT();
 
 function logError(msg)
 {
+	console.log(msg);
 	alert(msg);
 }
 
@@ -59,6 +60,8 @@ function drawScene()
 	mat4.perspective(pMatrix, 45, gl.viewportWidth/gl.viewportHeight, 0.1, 100.0);
 
 	model_view_matrix.setIdentity();
+	model_view_matrix.rotateX(camera.inv_rot[0]*Math.PI/180);
+	model_view_matrix.rotateZ(camera.inv_rot[2]*Math.PI/180);
 	model_view_matrix.translate(camera.inv_pos);
 
 	setMatrixUniforms();

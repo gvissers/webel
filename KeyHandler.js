@@ -80,6 +80,27 @@ KeyHandler.prototype.handleKeyDown = function(event)
  */
 KeyHandler.prototype.handleKeyUp = function(event)
 {
+	switch (event.keyCode)
+	{
+		case KeyHandler.KeyCode.Up:
+			camera.stepForward();
+			break;
+		case KeyHandler.KeyCode.Down:
+			camera.stepBackward();
+			break;
+		case KeyHandler.KeyCode.Left:
+			camera.rotateLeft();
+			break;
+		case KeyHandler.KeyCode.Right:
+			camera.rotateRight();
+			break;
+		case KeyHandler.KeyCode.PageUp:
+			camera.zoomOut();
+			break;
+		case KeyHandler.KeyCode.PageDown:
+			camera.zoomIn();
+			break;
+	}
 	this.keys_pressed[event.keyCode] = false;
 };
 
@@ -90,18 +111,6 @@ KeyHandler.prototype.handleKeyUp = function(event)
  */
 KeyHandler.prototype.handleKeys = function()
 {
-	if (this.keys_pressed[KeyHandler.KeyCode.Left])
-		camera.moveLeft();
-	if (this.keys_pressed[KeyHandler.KeyCode.Right])
-		camera.moveRight();
-	if (this.keys_pressed[KeyHandler.KeyCode.Up])
-		camera.moveUp();
-	if (this.keys_pressed[KeyHandler.KeyCode.Down])
-		camera.moveDown();
-	if (this.keys_pressed[KeyHandler.KeyCode.PageUp])
-		camera.zoomOut();
-	if (this.keys_pressed[KeyHandler.KeyCode.PageDown])
-		camera.zoomIn();
 	//game_window.handleKeys(this.keys_pressed);
 }
 

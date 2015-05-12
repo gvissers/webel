@@ -8,41 +8,103 @@
  */
 function Camera()
 {
-	/// Inverted position of the camera
-	this.inv_pos = [0, 0, -10.0];
+	/// Height map used to compute z values
+	this.elevation_map = null;
+	/// Position in walkable tiles
+	this.tile_pos = [0, 0];
+	/// Additional zoom distance
+	this.zoom_distance = 2.0;
+	/// Inverted position of the camera, in "meters"
+	this.inv_pos = [0, 0, 0];
+	/// Inverted rotation of the camera, in degrees
+	this.inv_rot = [-60, 0, 45];
 }
 
 /// Distance to move the camera when zooming in or out
 Camera.zoom_delta = 1.0;
+/// Change in position, based on current view angle
+Camera.pos_delta = {
+	0:   [ 0,  1],
+	45:  [ 1,  1],
+	90:  [ 1,  0],
+	135: [ 1, -1],
+	180: [ 0, -1],
+	225: [-1, -1],
+	270: [-1,  0],
+	315: [-1,  1]
+};
 
+/// Set the elevation map and position of the camera
+Camera.prototype.set = function(elevation_map, x, y)
+{
+	this.elevation_map = elevation_map;
+	this.tile_pos[0] = x;
+	this.tile_pos[1] = y;
+	this.setInversePosition();
+};
 
-/// Move the camera to the right
-Camera.prototype.moveRight = function()
+/// Calculate the inverse position from the tile coordinates
+Camera.prototype.setInversePosition = function()
 {
-	this.inv_pos[0] -= ElevationMap.tile_size_meters;
-}
-/// Move the camera to the left
-Camera.prototype.moveLeft = function()
+	var z = this.elevation_map.elevationAt(this.tile_pos[0], this.tile_pos[1]);
+	this.inv_pos[0] = -this.tile_pos[0] * ElevationMap.tile_size_meters;
+	this.inv_pos[1] = -this.tile_pos[1] * ElevationMap.tile_size_meters;
+	this.inv_pos[2] = -z - this.zoom_distance;
+};
+
+/// Take a step forward in the current viewing direction
+Camera.prototype.stepForward = function()
 {
-	this.inv_pos[0] += ElevationMap.tile_size_meters;
-}
-/// Move the camera up
-Camera.prototype.moveUp = function()
+	var x = this.tile_pos[0] + Camera.pos_delta[this.inv_rot[2]][0];
+	var y = this.tile_pos[1] + Camera.pos_delta[this.inv_rot[2]][1];
+	if (this.elevation_map.isWalkable(x, y))
+	{
+		this.tile_pos[0] = x;
+		this.tile_pos[1] = y;
+		this.setInversePosition();
+	}
+};
+/// Take a step backward in the current viewing direction
+Camera.prototype.stepBackward = function()
 {
-	this.inv_pos[1] -= ElevationMap.tile_size_meters;
-}
-/// Move the camera down
-Camera.prototype.moveDown = function()
+	var x = this.tile_pos[0] - Camera.pos_delta[this.inv_rot[2]][0];
+	var y = this.tile_pos[1] - Camera.pos_delta[this.inv_rot[2]][1];
+	if (this.elevation_map.isWalkable(x, y))
+	{
+		this.tile_pos[0] = x;
+		this.tile_pos[1] = y;
+		this.setInversePosition();
+	}
+};
+
+/// Rotate the camera 45 degrees left
+Camera.prototype.rotateLeft = function()
 {
-	this.inv_pos[1] += ElevationMap.tile_size_meters;
-}
+	this.inv_rot[2] -= 45;
+	if (this.inv_rot[2] < 0)
+		this.inv_rot[2] += 360;
+};
+/// Rotate the camera 45 degrees right
+Camera.prototype.rotateRight = function()
+{
+	this.inv_rot[2] += 45;
+	if (this.inv_rot[2] >= 360)
+		this.inv_rot[2] -= 360;
+};
+
 /// Zoom in on the scene by a single step
 Camera.prototype.zoomIn = function()
 {
-	this.inv_pos[2] += Camera.zoom_delta;
+	this.zoom_distance -= Camera.zoom_delta;
+	if (this.zoom_distance < 0)
+		this.zoom_distance = 0;
+	this.setInversePosition();
 };
 /// Zoom out of the scene by a single step
 Camera.prototype.zoomOut = function()
 {
-	this.inv_pos[2] -= Camera.zoom_delta;
+	this.zoom_distance += Camera.zoom_delta;
+	if (this.zoom_distance > 20)
+		this.zoom_distamce = 10;
+	this.setInversePosition();
 };
