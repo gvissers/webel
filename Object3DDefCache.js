@@ -14,22 +14,32 @@ function Object3DDefCache()
  *
  * Read the 3D object definition for file @a fname from the cache. If the
  * definition is not yet in the cache, it is requested from the server.
+ * If a callback function @a callback is provided, it is executed once the
+ * definition is in the cache.
  */
-Object3DDefCache.prototype.get = function(fname)
+Object3DDefCache.prototype.get = function(fname, callback)
 {
-	if (!(fname in this._cache))
+	var cache = this._cache;
+	if (!(fname in cache))
 	{
-		var cache = this._cache;
-		cache[fname] = new Object3DDef();
 		$.ajax(fname, {
 			dataType: "arraybuffer",
 			error: function() {
-				logError("Failed to get 2d object definition " + fname);
+				logError("Failed to get 3d object definition " + fname);
 			},
 			success: function(data) {
+				cache[fname] = new Object3DDef();
 				cache[fname].create(data);
+				if (callback)
+					callback(cache[fname]);
 			}
 		});
+		return null;
 	}
-	return this._cache[fname];
+	else
+	{
+		if (callback)
+			callback(cache[fname]);
+		cache[fname] = new Object3DDef();
+	}
 };
