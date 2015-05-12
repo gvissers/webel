@@ -54,3 +54,20 @@ function extractString(buf, off, len)
 	}
 	return str;
 }
+
+/**
+ * Calculate a transformation matrix based on position and rotation of an object
+ * @param position Position of the object
+ * @param rotation Orientation of the object
+ * @return Transformation matrix placing the object into the correct position
+ */
+function calculateTransformationMatrix(position, rotation)
+{
+	var transform = mat4.create();
+	mat4.identity(transform);
+	mat4.translate(transform, transform, position);
+	mat4.rotateZ(transform, transform, rotation[2]*Math.PI/180);
+	mat4.rotateX(transform, transform, rotation[0]*Math.PI/180);
+	mat4.rotateY(transform, transform, rotation[1]*Math.PI/180);
+	return transform;
+}

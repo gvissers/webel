@@ -31,12 +31,7 @@ Object2D.prototype.setDefinition = function(def)
 		this.rot[0] += 90;
 	}
 
-	var transform = mat4.create();
-	mat4.identity(transform);
-	mat4.translate(transform, transform, this.position);
-	mat4.rotateZ(transform, transform, this.rotation[2]*Math.PI/180);
-	mat4.rotateX(transform, transform, this.rotation[0]*Math.PI/180);
-	mat4.rotateY(transform, transform, this.rotation[1]*Math.PI/180);
+	var transform = calculateTransformationMatrix(this.position, this.rotation);
 
 	var x0 = -0.5 * def.width;
 	var x1 = x0 + def.width;

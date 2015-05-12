@@ -5,8 +5,23 @@ function Object3DDef()
 	/// Whether this definition has been fully loaded yet
 	this.loaded = false;
 
-	/// vertices for this 3D object
+	this.vertices = null;
+	this.texture_coords = null;
+	this.normals = null;
+	this.color = null;
+
+	/// WebGL vertex buffer
 	this.vertex_buffer = null;
+	/// WebGL texture coordinate buffer
+	this.texture_coord_buffer = null;
+	/// WebGL normal buffer. May be null if no normals are used.
+	this.normal_buffer = null;
+	/// WebGL color buffer. May be null if no vertex colors are used.
+	this.color_buffer = null;
+	/// Type of elements in the index buffer
+	this.index_type = null;
+	/// Size of an element in the index buffer
+	this.index_size = null;
 	/// vertex indices for this 3D object
 	this.index_buffer = null;
 	/// materials for this 3D object
@@ -111,24 +126,46 @@ Object3DDef.prototype.create = function(data)
 		return;
 	}
 
-	var vertices = this.readVertices(view, vertex_offset, vertex_count,
+	this.readVertices(view, vertex_offset, vertex_count,
 		vertex_format, vertex_options);
+
 	this.vertex_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices),
-		gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
+
+	this.texture_coord_buffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.texture_coord_buffer);
+	gl.bufferData(gl.ARRAY_BUFFER, this.texture_coords, gl.STATIC_DRAW);
+
+	if (vertex_options & Object3DDef.VertexOptions.HAS_NORMAL)
+	{
+		this.normal_buffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.normal_buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, this.normals, gl.STATIC_DRAW);
+	}
+
+	if (vertex_options & Object3DDef.VertexOptions.HAS_COLOR)
+	{
+		this.color_buffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.color_buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
+	}
 
 	this.index_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.index_buffer);
 	if (index_count <= 0xffff)
 	{
+		this.index_type = gl.UNSIGNED_SHORT;
+		this.index_size = 2;
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
-			new Uint16Array(view, index_offset, index_count), gl.STATIC_DRAW);
+			new Uint16Array(data, index_offset, index_count), gl.STATIC_DRAW);
 	}
 	else
 	{
+		this.index_type = gl.UNSIGNED_INT;
+		this.index_size = 4;
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
-			new Uint32Array(view, index_offset, index_count), gl.STATIC_DRAW);
+			new Uint32Array(data, index_offset, index_count), gl.STATIC_DRAW);
 	}
 
 	this.materials = this.readMaterials(view, material_offset, material_count,
@@ -180,6 +217,13 @@ Object3DDef.prototype.calcMaterialSize = function(options)
  */
 Object3DDef.prototype.readVertices = function(view, off, count, format, options)
 {
+	this.vertices = new Float32Array(count*3);
+	this.texture_coords = new Float32Array(count*2);
+	if (options & Object3DDef.VertexOptions.HAS_NORMAL)
+		this.normals = new Float32Array(count*3);
+	if (options & Object3DDef.VertexOptions.HAS_COLOR)
+		this.color = new Uint8Array(count*4);
+
 	var vertices = [];
 	for (var i = 0; i < count; ++i)
 	{
@@ -187,14 +231,14 @@ Object3DDef.prototype.readVertices = function(view, off, count, format, options)
 		{
 			var hu = view.getUint16(off, true);
 			var hv = view.getUint16(off+2, true);
-			vertices.push(half_lut.lookup(hu));
-			vertices.push(half_lut.lookup(hv));
+			this.texture_coords[2*i+0] = half_lut.lookup(hu);
+			this.texture_coords[2*i+1] = half_lut.lookup(hv);
 			off += 2*2;
 		}
 		else
 		{
-			vertices.push(view.getFloat32(off, true));
-			vertices.push(view.getFloat32(off+4, true));
+			this.texture_coords[2*i+0] = view.getFloat32(off, true);
+			this.texture_coords[2*i+1] = view.getFloat32(off+4, true);
 			off += 2*4;
 		}
 
@@ -208,16 +252,16 @@ Object3DDef.prototype.readVertices = function(view, off, count, format, options)
 			{
 				var cnormal = view.getUint16(off, true);
 				var normal = this.uncompressNormal(cnormal);
-				vertices.push(normal[0]);
-				vertices.push(normal[1]);
-				vertices.push(normal[2]);
+				this.normals[3*i+0] = normal[0];
+				this.normals[3*i+1] = normal[1];
+				this.normals[3*i+2] = normal[2];
 				off += 2;
 			}
 			else
 			{
-				vertices.push(view.getFloat32(off, true));
-				vertices.push(view.getFloat32(off+4, true));
-				vertices.push(view.getFloat32(off+8, true));
+				this.normals[3*i+0] = view.getFloat32(off, true);
+				this.normals[3*i+1] = view.getFloat32(off+4, true);
+				this.normals[3*i+2] = view.getFloat32(off+8, true);
 				off += 3*4;
 			}
 		}
@@ -230,28 +274,28 @@ Object3DDef.prototype.readVertices = function(view, off, count, format, options)
 			var hx = view.getUint16(off, true);
 			var hy = view.getUint16(off+2, true);
 			var hz = view.getUint16(off+4, true);
-			vertices.push(half_lut.lookup(hx));
-			vertices.push(half_lut.lookup(hy));
-			vertices.push(half_lut.lookup(hz));
+			this.vertices[3*i+0] = half_lut.lookup(hx);
+			this.vertices[3*i+1] = half_lut.lookup(hy);
+			this.vertices[3*i+2] = half_lut.lookup(hz);
 			off += 3*2;
 		}
 		else
 		{
-			vertices.push(view.getFloat32(off, true));
-			vertices.push(view.getFloat32(off+4, true));
-			vertices.push(view.getFloat32(off+8, true));
+			this.vertices[3*i+0] = view.getFloat32(off, true);
+			this.vertices[3*i+1] = view.getFloat32(off+4, true);
+			this.vertices[3*i+2] = view.getFloat32(off+8, true);
 			off += 3*4;
 		}
 
 		if (options & Object3DDef.VertexOptions.HAS_COLOR)
 		{
-			// Colors are stored as 4 unsigned bytes, read it as single float
-			vertices.append(view.getFloat32(off, true));
+			this.color[4*i+0] = view.getUint32(off);
+			this.color[4*i+1] = view.getUint32(off+1);
+			this.color[4*i+2] = view.getUint32(off+2);
+			this.color[4*i+3] = view.getUint32(off+3);
 			off += 4;
 		}
 	}
-
-	return vertices;
 };
 
 /**
@@ -308,3 +352,54 @@ Object3DDef.prototype.uncompressNormal = function(cnormal)
 
     return res;
 };
+
+/**
+ * Draw a 3D object definition. The position and orientation of the object
+ * should be set through the model view matrix
+ */
+Object3DDef.prototype.draw = function()
+{
+	if (!this.loaded)
+		// Definition not loaded from server yet
+		return;
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
+	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute, 3,
+		gl.FLOAT, false, 0, 0);
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.texture_coord_buffer);
+	gl.vertexAttribPointer(shaders.program.textureCoordAttribute, 2,
+		gl.FLOAT, false, 0, 0);
+
+	if (this.normals)
+	{
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.normal_buffer);
+		gl.vertexAttribPointer(shaders.program.vertexNormalAttribute, 3,
+			gl.FLOAT, false, 0, 0);
+	}
+
+	if (this.colors)
+	{
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.pyramidVertexColorBuffer);
+		gl.vertexAttribPointer(shaders.program.vertexColorAttribute, 4,
+			gl.UNSIGNED_BYTE, false, 0, 0);
+	}
+
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.index_buffer);
+
+	for (var i = 0; i < this.materials.length; ++i)
+	{
+		var material = this.materials[i];
+		var alpha_low;
+
+		if (material.isTransparent())
+			alpha_low = this.normals ? 0.30 : 0.23;
+		else
+			alpha_low = 1.0;
+		gl.uniform1f(shaders.program.alpha_low, alpha_low);
+
+		gl.bindTexture(gl.TEXTURE_2D, material.texture);
+		gl.drawElements(gl.TRIANGLES, material.count, this.index_type,
+            material.index*this.index_size);
+	}
+}

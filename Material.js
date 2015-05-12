@@ -17,3 +17,9 @@ function Material(options, texture_fname, min_coords, max_coords,
 
 	this.texture = texture_cache.get(this.texture_fname);
 }
+
+/// Check if this material is (partially) transparent
+Material.prototype.isTransparent = function()
+{
+	return this.options != 0;
+}
