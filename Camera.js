@@ -13,7 +13,7 @@ function Camera()
 	/// Position in walkable tiles
 	this.tile_pos = [0, 0];
 	/// Additional zoom distance
-	this.zoom_distance = 2.0;
+	this.zoom_distance = 0;
 	/// Inverted rotation of the camera, in degrees
 	this.inv_rot = [-60, 0, 45];
 	/// Bounding box for the camera, objects outsize this box aren't drawn
@@ -102,10 +102,10 @@ Camera.prototype.setModelView = function()
 	var inv_pos = vec3.fromValues(
 		-this.tile_pos[0] * ElevationMap.tile_size_meters,
 		-this.tile_pos[1] * ElevationMap.tile_size_meters,
-		-this.elevation_map.elevationAt(this.tile_pos[0], this.tile_pos[1])
-			- this.zoom_distance
+		-this.elevation_map.elevationAt(this.tile_pos[0], this.tile_pos[1]) - 2
 	);
 
+	model_view_matrix.translate([0, 0, -this.zoom_distance]);
 	model_view_matrix.rotateX(this.inv_rot[0]*Math.PI/180);
 	model_view_matrix.rotateZ(this.inv_rot[2]*Math.PI/180);
 	model_view_matrix.translate(inv_pos);
