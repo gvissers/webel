@@ -12,12 +12,8 @@ function TextureCache()
 	var _cache = { "white": _createWhitePixel() };
 	/// Extensions provided by our graphics card
 	var _extensions;
-	/// Whether we have support for DXT1 compressed textures
-	var _have_dxt1_support = false;
-	/// Whether we have support for DXT3 compressed textures
-	var _have_dxt3_support = false;
-	/// Whether we have support for DXT5 compressed textures
-	var _have_dxt5_support = false;
+	/// Compressed texture format that are supported
+	var _supported = {};
 
 	/**
 	 * Create single white pixel texture
@@ -60,29 +56,29 @@ function TextureCache()
 	/**
 	 * Callback for compressed image
 	 *
-	 * This function is called when the compressed image data @data to be
-	 * associated with @a texture has been loaded. It generates a new texture
-	 * from the data, and associates it with @a texture. The old contents of
-	 * @a texture are lost.
-	 * @param texture The texture to assign the image to
-	 * @param data    The image data just loaded
+	 * This function is called when the compressed image data @a data for
+	 * texture file @a fname has been loaded. It generates a new texture
+	 * from the data, and associates it with the texture in the cache.
+	 * The old contents of the texture are lost.
+	 * @param fname The file name of the texture image
+	 * @param data  The image data just loaded
 	 */
-	function _handleCompressedImageLoad(texture, data)
+	function _handleCompressedImageLoad(fname, data)
 	{
 		var dds = new DDS(data);
 		if (!dds.ok)
 			return;
 
 		var format;
-		if (dds.format == "DXT1" && _have_dxt1_support)
+		if (dds.format == "DXT1" && _supported.DXT1)
 		{
 			format = _extensions.COMPRESSED_RGBA_S3TC_DXT1_EXT;
 		}
-		else if (dds.format == "DXT3" && _have_dxt3_support)
+		else if (dds.format == "DXT3" && _supported.DXT3)
 		{
 			format = _extensions.COMPRESSED_RGBA_S3TC_DXT3_EXT;
 		}
-		else if (dds.format == "DXT5" && _have_dxt5_support)
+		else if (dds.format == "DXT5" && _supported.DXT5)
 		{
 			format = _extensions.COMPRESSED_RGBA_S3TC_DXT5_EXT;
 		}
@@ -92,15 +88,20 @@ function TextureCache()
 			return;
 		}
 
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		for (var level = 0; level < dds.mipmaps.length; ++level)
+		var nr_mipmaps = dds.mipmaps.length;
+		gl.bindTexture(gl.TEXTURE_2D, _cache[fname]);
+		for (var level = 0; level < nr_mipmaps; ++level)
 		{
 			gl.compressedTexImage2D(gl.TEXTURE_2D, level, format,
 				dds.mipmaps[level].width, dds.mipmaps[level].height, 0,
 				dds.mipmaps[level].data);
 		}
+
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+		if (false && (1 << (nr_mipmaps-1)) == Math.max(dds.width, dds.height))
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+		else
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	}
 
 	/**
@@ -124,7 +125,7 @@ function TextureCache()
 						logError("Failed to get texture " + fname);
 					},
 					success: function(data) {
-						_handleCompressedImageLoad(_cache[fname], data);
+						_handleCompressedImageLoad(fname, data);
 					}
 				});
 			}
@@ -175,13 +176,13 @@ function TextureCache()
 			switch (formats[i])
 			{
 				case _extensions.COMPRESSED_RGBA_S3TC_DXT1_EXT:
-					_have_dxt1_support = true;
+					_supported.DXT1 = true;
 					break;
 				case _extensions.COMPRESSED_RGBA_S3TC_DXT3_EXT:
-					_have_dxt3_support = true;
+					_supported.DXT3 = true;
 					break;
 				case _extensions.COMPRESSED_RGBA_S3TC_DXT5_EXT:
-					_have_dxt5_support = true;
+					_supported.DXT5 = true;
 					break;
 			}
 		}
