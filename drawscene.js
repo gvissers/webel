@@ -60,10 +60,8 @@ function drawScene()
 	mat4.perspective(pMatrix, 45, gl.viewportWidth/gl.viewportHeight, 0.1, 100.0);
 
 	model_view_matrix.setIdentity();
-	model_view_matrix.rotateX(camera.inv_rot[0]*Math.PI/180);
-	model_view_matrix.rotateZ(camera.inv_rot[2]*Math.PI/180);
-	model_view_matrix.translate(camera.inv_pos);
-
+	camera.setModelView();
+	
 	setMatrixUniforms();
 
 	map.draw();

@@ -14,8 +14,6 @@ function Camera()
 	this.tile_pos = [0, 0];
 	/// Additional zoom distance
 	this.zoom_distance = 2.0;
-	/// Inverted position of the camera, in "meters"
-	this.inv_pos = [0, 0, 0];
 	/// Inverted rotation of the camera, in degrees
 	this.inv_rot = [-60, 0, 45];
 }
@@ -40,16 +38,6 @@ Camera.prototype.set = function(elevation_map, x, y)
 	this.elevation_map = elevation_map;
 	this.tile_pos[0] = x;
 	this.tile_pos[1] = y;
-	this.setInversePosition();
-};
-
-/// Calculate the inverse position from the tile coordinates
-Camera.prototype.setInversePosition = function()
-{
-	var z = this.elevation_map.elevationAt(this.tile_pos[0], this.tile_pos[1]);
-	this.inv_pos[0] = -this.tile_pos[0] * ElevationMap.tile_size_meters;
-	this.inv_pos[1] = -this.tile_pos[1] * ElevationMap.tile_size_meters;
-	this.inv_pos[2] = -z - this.zoom_distance;
 };
 
 /// Take a step forward in the current viewing direction
@@ -61,7 +49,6 @@ Camera.prototype.stepForward = function()
 	{
 		this.tile_pos[0] = x;
 		this.tile_pos[1] = y;
-		this.setInversePosition();
 	}
 };
 /// Take a step backward in the current viewing direction
@@ -73,7 +60,6 @@ Camera.prototype.stepBackward = function()
 	{
 		this.tile_pos[0] = x;
 		this.tile_pos[1] = y;
-		this.setInversePosition();
 	}
 };
 
@@ -92,13 +78,27 @@ Camera.prototype.rotateRight = function()
 		this.inv_rot[2] -= 360;
 };
 
+/// Multiply the model view matrix to set the camera position
+Camera.prototype.setModelView = function()
+{
+	var inv_pos = vec3.fromValues(
+		-this.tile_pos[0] * ElevationMap.tile_size_meters,
+		-this.tile_pos[1] * ElevationMap.tile_size_meters,
+		-this.elevation_map.elevationAt(this.tile_pos[0], this.tile_pos[1])
+			- this.zoom_distance
+	);
+
+	model_view_matrix.rotateX(this.inv_rot[0]*Math.PI/180);
+	model_view_matrix.rotateZ(this.inv_rot[2]*Math.PI/180);
+	model_view_matrix.translate(inv_pos);
+}
+
 /// Zoom in on the scene by a single step
 Camera.prototype.zoomIn = function()
 {
 	this.zoom_distance -= Camera.zoom_delta;
 	if (this.zoom_distance < 0)
 		this.zoom_distance = 0;
-	this.setInversePosition();
 };
 /// Zoom out of the scene by a single step
 Camera.prototype.zoomOut = function()
@@ -106,5 +106,4 @@ Camera.prototype.zoomOut = function()
 	this.zoom_distance += Camera.zoom_delta;
 	if (this.zoom_distance > 20)
 		this.zoom_distamce = 10;
-	this.setInversePosition();
 };
