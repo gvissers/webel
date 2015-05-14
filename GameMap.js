@@ -96,7 +96,17 @@ GameMap.prototype._construct = function(data)
 			new Object3D(str, pos, rot, col, scale, self_lit, blended));
 	}
 
-	camera.set(this.elevation_map, elev_map_width>>1, elev_map_height>>1);
+
+	var x = elev_map_width>>1;
+	var y = elev_map_height>>1;
+	var d = 1;
+	while (!this.elevation_map.isWalkable(x, y))
+	{
+		x += Math.round(d*Math.random());
+		y += Math.round(d*Math.random());
+		d += 1;
+	}
+	camera.set(this.elevation_map, x, y);
 	console.log(this);
 };
 
