@@ -34,7 +34,7 @@ Camera.pos_delta = {
 	315: [-1,  1]
 };
 /// Max distance beyond which objects aren't drawn
-Camera.max_distance = 10;
+Camera.max_distance = 15;
 
 /// Set the elevation map and position of the camera
 Camera.prototype.set = function(elevation_map, x, y)
@@ -90,9 +90,18 @@ Camera.prototype.setBoundingBox = function()
 {
 	var x = this.tile_pos[0] * ElevationMap.tile_size_meters;
 	var y = this.tile_pos[1] * ElevationMap.tile_size_meters;
+
+	var cr = Math.cos(this.inv_rot[2] * Math.PI/180);
+	var sr = Math.sin(this.inv_rot[2] * Math.PI/180);
+
+	var xmin = x + Camera.max_distance * Math.min(-cr, -cr+sr, cr+sr,  cr);
+	var xmax = x + Camera.max_distance * Math.max(-cr, -cr+sr, cr+sr,  cr);
+	var ymin = y + Camera.max_distance * Math.min( sr,  cr+sr, cr-sr, -sr);
+	var ymax = y + Camera.max_distance * Math.max( sr,  cr+sr, cr-sr, -sr);
+
 	this.bounding_box = new BoundingBox(
-		[x - Camera.max_distance, y - Camera.max_distance, Number.NEGATIVE_INFINITY],
-		[x + Camera.max_distance, y + Camera.max_distance, Number.POSITIVE_INFINITY]
+		[xmin, ymin, Number.NEGATIVE_INFINITY],
+		[xmax, ymax, Number.POSITIVE_INFINITY]
 	);
 }
 
