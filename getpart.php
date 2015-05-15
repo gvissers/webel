@@ -50,7 +50,7 @@ error_log(print_r($fields,1));
 			'blend' => array('source' => $fields[2], 'dest' => $fields[3]),
 			'count' => $fields[4],
 			'time_to_live' => $fields[5],
-			'texture' => $fields[6],
+			'texture_fname' => "textures/particle{$fields[6]}.dds",
 			'size' => $fields[7],
 			'rand_sel' => $fields[8],
 			'min_position' => array($fields[9], $fields[10], $fields[11]),
