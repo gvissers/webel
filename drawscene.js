@@ -2,7 +2,6 @@
 
 var near_plane = 0.1;
 var far_plane = 100;
-var fovy = 45; // field of view, degrees
 
 var gl;
 var model_view_matrix = new ModelViewMatrix();
@@ -59,7 +58,8 @@ function drawScene()
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	var aspect = gl.viewportWidth/gl.viewportHeight;
-	mat4.perspective(pMatrix, fovy*Math.PI/180, aspect, near_plane, far_plane);
+	mat4.perspective(pMatrix, Camera.field_of_view*Math.PI/180, aspect,
+		near_plane, far_plane);
 
 	model_view_matrix.setIdentity();
 	camera.setModelView();

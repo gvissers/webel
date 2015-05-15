@@ -20,6 +20,8 @@ function Camera()
 	this.bounding_box = null;
 }
 
+/// View angle of the camera in degrees
+Camera.field_of_view = 45.0;
 /// Distance to move the camera when zooming in or out
 Camera.zoom_delta = 1.0;
 /// Change in position, based on current view angle
@@ -34,7 +36,11 @@ Camera.pos_delta = {
 	315: [-1,  1]
 };
 /// Max distance beyond which objects aren't drawn
-Camera.max_distance = 15;
+Camera.max_distance = 30.0;
+/// Maximum zoom distance in "meters"
+Camera.max_zoom_distance = 10.0;
+/// Temporary actor length until we know the actual lengths
+Camera.actor_length = 2.0;
 
 /// Set the elevation map and position of the camera
 Camera.prototype.set = function(elevation_map, x, y)
@@ -76,6 +82,7 @@ Camera.prototype.rotateLeft = function()
 	this.inv_rot[2] -= 45;
 	if (this.inv_rot[2] < 0)
 		this.inv_rot[2] += 360;
+	this.setBoundingBox();
 };
 /// Rotate the camera 45 degrees right
 Camera.prototype.rotateRight = function()
@@ -83,21 +90,35 @@ Camera.prototype.rotateRight = function()
 	this.inv_rot[2] += 45;
 	if (this.inv_rot[2] >= 360)
 		this.inv_rot[2] -= 360;
+	this.setBoundingBox();
 };
 
 /// Set the bounding box for the current camera settings
 Camera.prototype.setBoundingBox = function()
 {
+	var d;
+	var min_ang = -this.inv_rot[0] + 0.5 * Camera.field_of_view;
+	if (min_ang >= 90.0)
+	{
+		d = Camera.max_distance;
+	}
+	else
+	{
+		var z_cam = Camera.actor_length
+			+ this.zoom_distance * Math.cos(this.inv_rot[0] * Math.PI/180);
+		d = Math.min(Camera.max_distance, z_cam * Math.tan(min_ang * Math.PI/180));
+	}
+
 	var x = this.tile_pos[0] * ElevationMap.tile_size_meters;
 	var y = this.tile_pos[1] * ElevationMap.tile_size_meters;
 
 	var cr = Math.cos(this.inv_rot[2] * Math.PI/180);
 	var sr = Math.sin(this.inv_rot[2] * Math.PI/180);
 
-	var xmin = x + Camera.max_distance * Math.min(-cr, -cr+sr, cr+sr,  cr);
-	var xmax = x + Camera.max_distance * Math.max(-cr, -cr+sr, cr+sr,  cr);
-	var ymin = y + Camera.max_distance * Math.min( sr,  cr+sr, cr-sr, -sr);
-	var ymax = y + Camera.max_distance * Math.max( sr,  cr+sr, cr-sr, -sr);
+	var xmin = x + d * Math.min(-cr, -cr+sr, cr+sr,  cr);
+	var xmax = x + d * Math.max(-cr, -cr+sr, cr+sr,  cr);
+	var ymin = y + d * Math.min( sr,  cr+sr, cr-sr, -sr);
+	var ymax = y + d * Math.max( sr,  cr+sr, cr-sr, -sr);
 
 	this.bounding_box = new BoundingBox(
 		[xmin, ymin, Number.NEGATIVE_INFINITY],
@@ -111,7 +132,8 @@ Camera.prototype.setModelView = function()
 	var inv_pos = vec3.fromValues(
 		-this.tile_pos[0] * ElevationMap.tile_size_meters,
 		-this.tile_pos[1] * ElevationMap.tile_size_meters,
-		-this.elevation_map.elevationAt(this.tile_pos[0], this.tile_pos[1]) - 2
+		-this.elevation_map.elevationAt(this.tile_pos[0], this.tile_pos[1])
+			- Camera.actor_length
 	);
 
 	model_view_matrix.translate([0, 0, -this.zoom_distance]);
@@ -126,11 +148,13 @@ Camera.prototype.zoomIn = function()
 	this.zoom_distance -= Camera.zoom_delta;
 	if (this.zoom_distance < 0)
 		this.zoom_distance = 0;
+	this.setBoundingBox();
 };
 /// Zoom out of the scene by a single step
 Camera.prototype.zoomOut = function()
 {
 	this.zoom_distance += Camera.zoom_delta;
-	if (this.zoom_distance > 10)
-		this.zoom_distance = 10;
+	if (this.zoom_distance > Camera.max_zoom_delta)
+		this.zoom_distance = Camera.max_zoom_delta;
+	this.setBoundingBox();
 };
