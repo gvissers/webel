@@ -110,9 +110,6 @@ GameMap.prototype._construct = function(data)
 	console.log(this);
 };
 
-var ic = 0;
-var dtt = 0;
-var dt2 = 0;
 /**
  * Draw the map
  *
@@ -120,6 +117,17 @@ var dt2 = 0;
  */
 GameMap.prototype.draw = function()
 {
+	if (!this.stats)
+	{
+		this.stats = {
+			max_count: 1000,
+			count: 0,
+			ticks_tiles: 0,
+			ticks_2d: 0,
+			ticks_3d: 0
+		};
+	}
+
 	// All objects are textured, disable vertex coloring and enable texture
 	// coordinates
 	gl.disableVertexAttribArray(shaders.program.vertexColorAttribute);
@@ -129,6 +137,36 @@ GameMap.prototype.draw = function()
 	gl.disable(gl.BLEND);
 	gl.enable(gl.DEPTH_TEST);
 
+	var tic = new Date().getTime();
 	this.tile_map.draw();
+	var toc = new Date().getTime();
+	this.stats.ticks_tiles += toc - tic;
+
+	tic = new Date().getTime();
 	this.objects_2d.draw();
+	toc = new Date().getTime();
+	this.stats.ticks_2d += toc - tic;
+
+	tic = new Date().getTime();
+	for (var i = 0; i < this.objects_3d.length; ++i)
+	{
+		if (camera.bounding_box.overlaps(this.objects_3d[i].bounding_box))
+			this.objects_3d[i].draw();
+	}
+	// Reset alpha limit
+	gl.uniform1f(shaders.program.alpha_low, 0.0);
+	toc = new Date().getTime();
+	this.stats.ticks_3d += toc - tic;
+
+	if (++this.stats.count == this.stats.max_count)
+	{
+		console.log(
+			this.stats.ticks_tiles/this.stats.max_count + " ms for tiles, "
+			+ this.stats.ticks_2d/this.stats.max_count + " ms for 2d, "
+			+ this.stats.ticks_3d/this.stats.max_count + " ms for 3d");
+		this.stats.count = 0;
+		this.stats.ticks_tiles = 0;
+		this.stats.ticks_2d = 0;
+		this.stats.ticks_3d = 0;
+	}
 }
