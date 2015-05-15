@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Class for axis aligned bounding box
  */

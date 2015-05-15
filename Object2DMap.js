@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Class for the collection of 2D objects on a map
  */

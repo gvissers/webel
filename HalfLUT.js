@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Lookup table for half floats
  *
