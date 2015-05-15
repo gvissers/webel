@@ -26,7 +26,7 @@ Object2DDefCache.Type = {
  * Get a 2d object definition from file name @a fname. If the definition is not
  * in the cache yet, it is requested from the server.
  * @param fname    File name of the definition to retrieve
- * @param callback callback function to execute once definition is loaded
+ * @param callback optional callback function to execute once definition is loaded
  */
 Object2DDefCache.prototype.get = function(fname, callback)
 {
