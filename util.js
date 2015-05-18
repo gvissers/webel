@@ -71,3 +71,16 @@ function calculateTransformationMatrix(position, rotation)
 	mat4.rotateY(transform, transform, rotation[1]*Math.PI/180);
 	return transform;
 }
+
+/**
+ * Return the absolute largest element of @a array.
+ * @param array The array of which to find the absolute largest value
+ * @return The absolute largest element in the array
+ */
+function maxabs(array)
+{
+	var res = 0;
+	for (var i = 0; i < array.length; ++i)
+		res = Math.max(res. Math.abs(array[i]));
+	return res;
+}

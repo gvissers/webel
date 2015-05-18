@@ -12,6 +12,7 @@ var shaders = new Shaders();
 var texture_cache;
 var object_2d_def_cache;
 var object_3d_def_cache;
+var particle_system_def_cache;
 var camera = new Camera;
 var key_handler = new KeyHandler();
 var fps_counter = new FPSCounter(60, new Date().getTime());
@@ -74,8 +75,10 @@ function animate()
 {
 	var timeNow = new Date().getTime();
 
+	map.animate(timeNow);
+
 	fps_counter.update(timeNow);
-	if (timeNow - lastFPS > 1000)
+	if (timeNow - lastFPS > 5000)
 	{
 		console.log(fps_counter.get());
 		lastFPS = timeNow;
@@ -99,13 +102,14 @@ function webGLStart()
 	texture_cache = new TextureCache();
 	object_2d_def_cache = new Object2DDefCache();
 	object_3d_def_cache = new Object3DDefCache();
+	particle_system_def_cache = new ParticleSystemDefCache();
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
 	document.onkeydown = function(event) { key_handler.handleKeyDown(event); }
 	document.onkeyup = function(event) { key_handler.handleKeyUp(event); }
 
-	map = new GameMap("maps/startmap.elm");
+	map = new GameMap("maps/map3.elm");
 
 	tick();
 }

@@ -21,6 +21,8 @@ function GameMap(fname)
 	this.objects_2d = new Object2DMap();
 	/// three-dimensional objects
 	this.objects_3d = [];
+	/// Particle systems
+	this.particles = [];
 
 	$.ajax(fname, {
 		dataType: "arraybuffer",
@@ -96,6 +98,13 @@ GameMap.prototype._construct = function(data)
 			new Object3D(str, pos, rot, col, scale, self_lit, blended));
 	}
 
+	var off = particles_offset;
+	for (var i = 0; i < particles_count; ++i, off += particles_size)
+	{
+		var str = extractString(view, off, 80);
+		var pos = new Float32Array(data, off+80, 3);
+		this.particles.push(new ParticleSystem(str, pos));
+	}
 
 	var x = elev_map_width>>1;
 	var y = elev_map_height>>1;
@@ -170,3 +179,10 @@ GameMap.prototype.draw = function()
 		this.stats.ticks_3d = 0;
 	}
 }
+
+/// Update the dynamic parts of the map
+GameMap.prototype.animate = function(time)
+{
+	for (var i = 0; i < this.particles.length; ++i)
+		this.particles[i].update(time);
+};
