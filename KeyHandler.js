@@ -83,10 +83,10 @@ KeyHandler.prototype.handleKeyUp = function(event)
 	switch (event.keyCode)
 	{
 		case KeyHandler.KeyCode.Up:
-			camera.stepForward();
+			camera.rotateUp();
 			break;
 		case KeyHandler.KeyCode.Down:
-			camera.stepBackward();
+			camera.rotateDown();
 			break;
 		case KeyHandler.KeyCode.Left:
 			camera.rotateLeft();
@@ -99,6 +99,12 @@ KeyHandler.prototype.handleKeyUp = function(event)
 			break;
 		case KeyHandler.KeyCode.PageDown:
 			camera.zoomIn();
+			break;
+		case KeyHandler.KeyCode.Insert:
+			camera.stepForward();
+			break;
+		case KeyHandler.KeyCode.Delete:
+			camera.stepBackward();
 			break;
 	}
 	this.keys_pressed[event.keyCode] = false;

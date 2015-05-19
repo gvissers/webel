@@ -92,6 +92,20 @@ Camera.prototype.rotateRight = function()
 		this.inv_rot[2] -= 360;
 	this.setBoundingBox();
 };
+/// Rotate the camera 5 degrees up
+Camera.prototype.rotateUp = function()
+{
+	this.inv_rot[0] -= 5;
+	if (this.inv_rot[0] < -180)
+		this.inv_rot[0] = -180;
+}
+/// Rotate the camera 5 degrees down
+Camera.prototype.rotateDown = function()
+{
+	this.inv_rot[0] += 5;
+	if (this.inv_rot[0] > 0)
+		this.inv_rot[0] = 0;
+}
 
 /// Set the bounding box for the current camera settings
 Camera.prototype.setBoundingBox = function()
