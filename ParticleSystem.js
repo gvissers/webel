@@ -10,8 +10,13 @@ function ParticleSystem(fname, pos)
 	/// Position of this particle system
 	this.position = pos;
 
-	/// The particles in this system
-	this.particles = [];
+	/// Positions of the particles in this system
+	this.vertices = null;
+	/// Colors of the particles in this system
+	this.colors = null;
+	/// Velocities of the particles in this system
+	this.velocities = null;
+
 	/// The number of particles still active
 	this.nr_particles_alive = 0;
 	/// The timestamp until which the system goes out of existance
@@ -48,9 +53,21 @@ ParticleSystem.prototype.setDefinition = function(def)
 
 	this.last_update = new Date().getTime();
 
-	for (var i = 0; i < def.count; ++i)
-		this.particles.push(new Particle(this.position, def));
 	this.nr_particles_alive = def.count;
+
+	this.vertices = new Float32Array(this.nr_particles * 3);
+	this.colors = new Float32Array(this.nr_particles * 4);
+	this.velocities = new Float32Array(this.nr_particles * 3);
+	for (var ip = 0; ip < this.nr_particles_alive; ++ip)
+	{
+		this.setPosition(ip, def.randomPosition());
+		this.setColor(ip, def.randomColor());
+
+		var vel = def.randomVelocity();
+		for (var i = 0; i < 3; ++i)
+			this.velocities[ip*3+i] = vel[i];
+	}
+
 	this.time_to_live = def.time_to_live < 0
 		? -1
 		: this.last_update + def.time_to_live;
@@ -97,87 +114,76 @@ ParticleSystem.prototype.update = function(time)
 /// Update the state of the particles in a teleporter system
 ParticleSystem.prototype.updateTeleporter = function(time, frac)
 {
-	var def = this.def;
+	var vertices = this.vertices;
 	var z = this.position[2];
-	this.restoreParticles(time, function(part) {
-		part.position[2] = Math.max(part.position[2], z);
+	this.restoreParticles(time, function(ip) {
+		vertices[3*ip+2] = Math.max(z, vertices[3*ip+2]);
 	});
-	this.updateParticles(
-		function(part) { return part.position[2] > z+ParticleSystem.max_teleporter_height; },
-		function(part) {
-			part.updateWithConstantVelocity(
-				def.randomAcceleration(1),
-				def.randomColorDifference(0),
-				frac);
-		}
-	);
+	this.killParticlesIf(function(ip) {
+		return vertices[3*ip+2] > z+ParticleSystem.max_teleporter_height;
+	});
+	this.updateParticles(frac, 1, 0);
 };
 
 /// Update the state of the particles in a teleport system
 ParticleSystem.prototype.updateTeleport = function(time, frac)
 {
-	var def = this.def;
+	var obj = this;
 	var pos = this.position;
-	this.restoreParticles(time, function(part) { part.position = pos; });
-	this.updateParticles(
-		function(part) { return part.position[2] > pos[2]+ParticleSystem.max_teleport_height; },
-		function(part) {
-			part.updateWithConstantVelocity(
-				def.randomAcceleration(1),
-				def.randomColorDifference(1),
-				frac);
-		}
-	);
+	this.restoreParticles(time, function(ip) { obj.setPosition(ip, obj.position); });
+	this.killParticlesIf(function(ip) {
+		return vertices[3*ip+2] > pos[2]+ParticleSystem.max_teleport_height;
+	});
+	this.updateParticles(frac, 1, 1);
 };
 
 /// Update the state of the particles in a bag system
 ParticleSystem.prototype.updateBag = function(time, frac)
 {
-	var def = this.def;
+	var vertices = this.vertices;
 	var z = this.position[2];
-	this.restoreParticles(time, function(part) {
-		part.position[2] = Math.max(part.position[2], z);
+	this.restoreParticles(time, function(ip) {
+		vertices[3*ip+2] = Math.max(z, vertices[3*ip+2]);
 	});
-	this.updateParticles(
-		function(part) { return part.position[2] > z+ParticleSystem.max_bag_height; },
-		function(part) {
-			part.updateWithConstantVelocity(
-				def.randomAcceleration(1),
-				def.randomColorDifference(1),
-				frac);
-		}
-	);
+	this.killParticlesIf(function(ip) {
+		return vertices[3*ip+2] > z+ParticleSystem.max_bag_height;
+	});
+	this.updateParticles(frac, 1, 1);
 };
 
 /// Update the state of the particles in a burst system
 ParticleSystem.prototype.updateBurst = function(time, frac)
 {
-	for (var i = 0; i < this.particles.length; ++i)
+	var ip = 0;
+	var vs = this.vertices;
+	while (ip < this.nr_particles_alive)
 	{
-		var part = this.particles[i];
-		if (!part.alive)
-			continue;
-
-		var delta = vec3.create();
+		var delta = vec3.fromValues(vs[3*ip+0], vs[3*ip+1], vs[3*ip+2]);
 		vec3.sub(delta, part.position, this.position);
 		var dist_sq = vec3.squaredLength(delta);
 		if (dist_sq > ParticleSystem.burst_squared_radius_scale * this.def.radius_squared
 			|| dist_sq < ParticleSystem.min_dist_squared)
 		{
-			part.active = false;
-			--this.nr_particles_alive;
+			this.killParticle(ip);
 		}
 		else
 		{
-			if (maxabs(part.velocity) < ParticleSystem.min_burst_speed)
+			var avx = Math.abs(this.velocities[3*ip]);
+			var avy = Math.abs(this.velocities[3*ip+1]);
+			var avz = Math.abs(this.velocities[3*ip+2]);
+			if (Math.max(vx, vy, vz) < ParticleSystem.min_burst_speed)
 			{
 				vec3.normalize(delta);
-				vec3.scale(part.velocity, delta, 0.25);
+				this.velocities[3*ip  ] = 0.25 * delta[0];
+				this.velocities[3*ip+1] = 0.25 * delta[1];
+				this.velocities[3*ip+2] = 0.25 * delta[2];
 			}
-			part.updateWithConstantVelocity(
-				vec3.create(),
-				this.def.randomColorDifference(0),
-				frac);
+			var color_diff = this.def.randomColorDifference(0);
+			for (var i = 0; i < 3; ++i)
+				this.vertices[3*ip+i] += frac * this.velocities[3*ip+i];
+			for (var i = 0; i < 4; ++i)
+				this.colors[4*ip+i] += frac * color_diff[i];
+			++ip;
 		}
 	}
 };
@@ -187,36 +193,25 @@ ParticleSystem.prototype.updateFire = function(time, frac)
 {
 	var def = this.def;
 	this.restoreParticles(time);
-	this.updateParticles(
-		function(part) { return part.color[3] < 0.0; },
-		function(part) {
-			part.updateWithConstantVelocity(
-				def.randomAcceleration(0),
-				def.randomColorDifference(0),
-				frac);
-		}
-	);
+	this.killParticles(function(ip) { return colors[4*ip+3] < 0.0; });
+	this.updateParticles(frac, 0, 0);
 };
 
 /// Update the state of the particles in a fountain system
 ParticleSystem.prototype.updateFountain = function(time, frac)
 {
-	var def = this.def;
+	var vertices = this.vertices;
+	var colors = this.colors;
+
 	this.restoreParticles(time);
-	this.updateParticles(
-		function(part) { return part.color[3] < 0.0; },
-		function(part) {
-			if (part.position[2] < 0.0)
+	this.killParticles(function(ip) { return colors[4*ip+3] < 0.0; });
+	this.updateParticles(frac, 0, 0, function(ip) {
+			if (vertices[3*ip+2] < 0.0)
 			{
-				part.position[2] = -part.position[2];
-				part.velocity[2] = -part.velocity[2];
+				vertices[3*ip+2] = -vertices[3*ip+2];
+				velocities[3*ip+2] = -velocities[3*ip+2];
 			}
-			part.update(
-				def.randomAcceleration(0),
-				def.randomColorDifference(0),
-				frac);
-		}
-	);
+		}, true);
 };
 
 /// Reinitialize particles that are no longer active
@@ -225,31 +220,118 @@ ParticleSystem.prototype.restoreParticles = function(time, init)
 	if (time >= this.time_to_live || this.def.count <= this.nr_particles_alive)
 		return;
 
-	for (var i = 0; i < this.particles.length; ++i)
+	for (var ip = nr_particles_alive; ip < this.def.count; ++ip)
 	{
-		if (!this.particles[i].alive)
+		this.setPosition(ip, this.def.randomPosition());
+		this.setColor(ip, this.def.randomColor());
+		this.setVelocity(ip, this.def.randomVelocity());
+		if (init)
+			init(ip);
+	}
+	nr_particles_alive = this.def.count;
+}
+
+/**
+ * Kill particles
+ *
+ * Remove particles for which function @a die_cond returns true, from the
+ * list of active particles.
+ * @param die_cond function that determines if a particle should die
+ */
+ParticleSystem.prototype.killParticlesIf = function(die_cond)
+{
+	var ip = 0;
+	while (ip < this.nr_particles_alive)
+	{
+		if (die_cond(ip))
+			this.killParticle(ip);
+		else
+			++ip;
+	}
+}
+
+/**
+ * Update the particles in this system
+ *
+ * Update the active particles in this system, setting new positions, colors,
+ * and possibly velocities.
+ * @param frac            Time difference since last update, relative to a full update
+ * @param acc_rf_sel      Random function selector for the acceleration
+ * @param col_diff_rf_sel Random function selector for the color difference
+ * @param update_func     If set, function to execute before other updates
+ * @param update_vel      If set, update velocities of the particles
+ */
+ParticleSystem.prototype.updateParticles = function(frac,
+	acc_rf_sel, col_diff_rf_sel, update_func, update_vel)
+{
+	if (update_func)
+	{
+		for (var ip = nr_particles_alive; ip < this.nr_particles_alive; ++ip)
+			update_func(ip);
+	}
+
+	if (update_vel)
+	{
+		for (var ip = nr_particles_alive; ip < this.nr_particles_alive; ++ip)
 		{
-			var part = new Particle(this.position, this.def);
-			if (init)
-				init(part);
-			this.particles[i] = part;
-			++this.nr_particles_alive;
+			var acceleration = this.def.randomAcceleration(acc_rf_sel);
+			var color_diff = this.def.randomColorDifference(col_diff_rf_sel);
+			for (var i = 0; i < 3; ++i)
+			{
+				this.vertices[3*ip+i] += frac * this.velocities[3*ip+i];
+				this.velocities[3*ip+i] += frac * acceleration[i];
+			}
+			for (var i = 0; i < 4; ++i)
+				this.colors[4*ip+i] += frac * color_diff[i];
+		}
+	}
+	else
+	{
+		for (var ip = nr_particles_alive; ip < this.nr_particles_alive; ++ip)
+		{
+			var extra_velocity = this.def.randomAcceleration(acc_rf_sel);
+			var color_diff = this.def.randomColorDifference(col_diff_rf_sel);
+			for (var i = 0; i < 3; ++i)
+				this.vertices[3*ip+i] += frac * (this.velocities[3*ip+i] + extra_velocity[i]);
+			for (var i = 0; i < 4; ++i)
+				this.colors[4*ip+i] += frac * color_diff[i];
 		}
 	}
 }
 
-/// Update the active particles in this system
-ParticleSystem.prototype.updateParticles = function(die_cond, update_func)
+/**
+ * Kill a particle
+ *
+ * Kill the particle at index @a ip and remove it from the list of active
+ * particles.
+ * @param ip Index of the particle to remove
+ */
+ParticleSystem.prototype.killParticle = function(ip)
 {
-	for (var i = 0; i < this.particles.length; ++i)
-	{
-		var part = this.particles[i];
-		if (!part.alive)
-			continue;
-
-		if (part.dieIf(die_cond))
-			--this.nr_particles_alive;
-		else
-			update_func(part);
-	}
+	var np = this.nr_particles_alive;
+	this.setPosition(ip, this.vertices.slice(3*np-3, 3*np);
+	this.setColor(ip, this.colors.slice(4*np-4, 4*np);
+	this.setVelocity(ip, this.velocities.slice(3*np-3, 3*np);
+	--this.nr_particles_alive;
 }
+
+/// Set the position of the particle at index @a ip to @a position
+ParticlesSystem.prototype.setPosition = function(ip, position)
+{
+	for (var i = 0; i < 3; ++i)
+		this.vertices[3*ip+i] = position[i];
+};
+
+/// Set the color of the particle at index @a ip to @a color
+ParticlesSystem.prototype.setColor = function(ip, color)
+{
+	for (var i = 0; i < 4; ++i)
+		this.colors[4*ip+i] = color[i];
+};
+
+/// Set the velocity of the particle at index @a ip to @a velocity
+ParticleSystem.prototype.setVelocity = function(ip, velocity)
+{
+	for (var i = 0; i < 3; ++i)
+		this.velocities[3*ip+i] = velocity[i];
+};
