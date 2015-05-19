@@ -380,7 +380,7 @@ Object3DDef.prototype.draw = function()
 
 	if (this.colors)
 	{
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.pyramidVertexColorBuffer);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.color_buffer);
 		gl.vertexAttribPointer(shaders.program.vertexColorAttribute, 4,
 			gl.UNSIGNED_BYTE, false, 0, 0);
 	}
