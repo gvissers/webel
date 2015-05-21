@@ -28,7 +28,6 @@
 		<script type="text/javascript" src="Object3D.js"></script>
 		<script type="text/javascript" src="Object3DDef.js"></script>
 		<script type="text/javascript" src="Object3DDefCache.js"></script>
-		<script type="text/javascript" src="Particle.js"></script>
 		<script type="text/javascript" src="ParticleSystem.js"></script>
 		<script type="text/javascript" src="ParticleSystemDef.js"></script>
 		<script type="text/javascript" src="ParticleSystemDefCache.js"></script>
