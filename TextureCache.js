@@ -98,7 +98,7 @@ function TextureCache()
 		}
 
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		if (false && (1 << (nr_mipmaps-1)) == Math.max(dds.width, dds.height))
+		if ((1 << (nr_mipmaps-1)) == Math.max(dds.width, dds.height))
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 		else
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -131,7 +131,7 @@ function TextureCache()
 			}
 			else
 			{
-				image = new Image();
+				var image = new Image();
 				image.onload = function() {
 					_handleImageLoad(_cache[fname], image)
 				}
