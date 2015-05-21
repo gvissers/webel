@@ -133,7 +133,8 @@ GameMap.prototype.draw = function()
 			count: 0,
 			ticks_tiles: 0,
 			ticks_2d: 0,
-			ticks_3d: 0
+			ticks_3d: 0,
+			ticks_part: 0
 		};
 	}
 
@@ -162,21 +163,39 @@ GameMap.prototype.draw = function()
 		if (camera.bounding_box.overlaps(this.objects_3d[i].bounding_box))
 			this.objects_3d[i].draw();
 	}
+	// Reset model view matrix
+	model_view_matrix.setUniform();
 	// Reset alpha limit
 	gl.uniform1f(shaders.program.alpha_low, 0.0);
 	toc = new Date().getTime();
 	this.stats.ticks_3d += toc - tic;
+
+	tic = new Date().getTime();
+	gl.uniform1i(shaders.program.do_point, true);
+	gl.disableVertexAttribArray(shaders.program.textureCoordAttribute);
+	gl.enableVertexAttribArray(shaders.program.vertexColorAttribute);
+	gl.enable(gl.BLEND);
+	for (var i = 0; i < this.particles.length; ++i)
+		this.particles[i].draw();
+	toc = new Date().getTime();
+	gl.disable(gl.BLEND);
+	gl.disableVertexAttribArray(shaders.program.vertexColorAttribute);
+	gl.enableVertexAttribArray(shaders.program.textureCoordAttribute);
+	gl.uniform1i(shaders.program.do_point, false);
+	this.stats.ticks_part += toc - tic;
 
 	if (++this.stats.count == this.stats.max_count)
 	{
 		console.log(
 			this.stats.ticks_tiles/this.stats.max_count + " ms for tiles, "
 			+ this.stats.ticks_2d/this.stats.max_count + " ms for 2d, "
-			+ this.stats.ticks_3d/this.stats.max_count + " ms for 3d");
+			+ this.stats.ticks_3d/this.stats.max_count + " ms for 3d, "
+			+ this.stats.ticks_part/this.stats.max_count + " ms for particles");
 		this.stats.count = 0;
 		this.stats.ticks_tiles = 0;
 		this.stats.ticks_2d = 0;
 		this.stats.ticks_3d = 0;
+		this.stats.ticks_part = 0;
 	}
 }
 

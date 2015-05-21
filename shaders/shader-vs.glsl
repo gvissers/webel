@@ -13,6 +13,8 @@ uniform vec3 uAmbientColor;
 uniform vec3 uLightingDirection;
 uniform vec3 uDirectionalColor;
 
+uniform float point_size;
+
 varying vec4 vColor;
 varying vec2 vTextureCoord;
 varying vec3 vLightWeighting;
@@ -20,6 +22,7 @@ varying vec3 vLightWeighting;
 void main(void)
 {
 	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+	gl_PointSize = point_size;
 	vColor = aVertexColor;
 	vTextureCoord = aTextureCoord;
 
