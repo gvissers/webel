@@ -126,9 +126,9 @@ GameMap.prototype._construct = function(data)
  */
 GameMap.prototype.draw = function()
 {
-	if (!this.stats)
+	if (!this.draw_stats)
 	{
-		this.stats = {
+		this.draw_stats = {
 			max_count: 1000,
 			count: 0,
 			ticks_tiles: 0,
@@ -150,12 +150,12 @@ GameMap.prototype.draw = function()
 	var tic = new Date().getTime();
 	this.tile_map.draw();
 	var toc = new Date().getTime();
-	this.stats.ticks_tiles += toc - tic;
+	this.draw_stats.ticks_tiles += toc - tic;
 
 	tic = new Date().getTime();
 	this.objects_2d.draw();
 	toc = new Date().getTime();
-	this.stats.ticks_2d += toc - tic;
+	this.draw_stats.ticks_2d += toc - tic;
 
 	tic = new Date().getTime();
 	for (var i = 0; i < this.objects_3d.length; ++i)
@@ -168,7 +168,7 @@ GameMap.prototype.draw = function()
 	// Reset alpha limit
 	gl.uniform1f(shaders.program.alpha_low, 0.0);
 	toc = new Date().getTime();
-	this.stats.ticks_3d += toc - tic;
+	this.draw_stats.ticks_3d += toc - tic;
 
 	tic = new Date().getTime();
 	gl.uniform1i(shaders.program.do_point, true);
@@ -177,31 +177,50 @@ GameMap.prototype.draw = function()
 	gl.enable(gl.BLEND);
 	for (var i = 0; i < this.particles.length; ++i)
 		this.particles[i].draw();
-	toc = new Date().getTime();
 	gl.disable(gl.BLEND);
 	gl.disableVertexAttribArray(shaders.program.vertexColorAttribute);
 	gl.enableVertexAttribArray(shaders.program.textureCoordAttribute);
 	gl.uniform1i(shaders.program.do_point, false);
-	this.stats.ticks_part += toc - tic;
+	toc = new Date().getTime();
+	this.draw_stats.ticks_part += toc - tic;
 
-	if (++this.stats.count == this.stats.max_count)
+	if (++this.draw_stats.count == this.draw_stats.max_count)
 	{
 		console.log(
-			this.stats.ticks_tiles/this.stats.max_count + " ms for tiles, "
-			+ this.stats.ticks_2d/this.stats.max_count + " ms for 2d, "
-			+ this.stats.ticks_3d/this.stats.max_count + " ms for 3d, "
-			+ this.stats.ticks_part/this.stats.max_count + " ms for particles");
-		this.stats.count = 0;
-		this.stats.ticks_tiles = 0;
-		this.stats.ticks_2d = 0;
-		this.stats.ticks_3d = 0;
-		this.stats.ticks_part = 0;
+			this.draw_stats.ticks_tiles/this.draw_stats.max_count + " ms for tiles, "
+			+ this.draw_stats.ticks_2d/this.draw_stats.max_count + " ms for 2d, "
+			+ this.draw_stats.ticks_3d/this.draw_stats.max_count + " ms for 3d, "
+			+ this.draw_stats.ticks_part/this.draw_stats.max_count + " ms for particles");
+		this.draw_stats.count = 0;
+		this.draw_stats.ticks_tiles = 0;
+		this.draw_stats.ticks_2d = 0;
+		this.draw_stats.ticks_3d = 0;
+		this.draw_stats.ticks_part = 0;
 	}
 }
 
 /// Update the dynamic parts of the map
 GameMap.prototype.animate = function(time)
 {
+	if (!this.update_stats)
+	{
+		this.update_stats = {
+			max_count: 1000,
+			count: 0,
+			ticks_part: 0,
+		};
+	}
+
+	var tic = new Date().getTime();
 	for (var i = 0; i < this.particles.length; ++i)
 		this.particles[i].update(time);
+	var toc = new Date().getTime();
+	this.update_stats.ticks_part += toc - tic;
+
+	if (++this.update_stats.count == this.update_stats.max_count)
+	{
+		console.log(this.update_stats.ticks_part/this.update_stats.max_count + " ms updating particles");
+		this.update_stats.count = 0;
+		this.update_stats.ticks_part = 0;
+	}
 };

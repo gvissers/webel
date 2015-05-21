@@ -279,29 +279,39 @@ ParticleSystem.prototype.updateParticles = function(frac,
 
 	if (update_vel)
 	{
+		var acceleration = vec3.create();
+		var color_diff = vec4.create();
 		for (var ip = 0; ip < this.nr_particles_alive; ++ip)
 		{
-			var acceleration = this.def.randomAcceleration(acc_rf_sel);
-			var color_diff = this.def.randomColorDifference(col_diff_rf_sel);
-			for (var i = 0; i < 3; ++i)
-			{
-				this.vertices[3*ip+i] += frac * this.velocities[3*ip+i];
-				this.velocities[3*ip+i] += frac * acceleration[i];
-			}
-			for (var i = 0; i < 4; ++i)
-				this.colors[4*ip+i] += frac * color_diff[i];
+			this.def.getRandomAcceleration(acceleration, acc_rf_sel);
+			this.def.getRandomColorDifference(color_diff, col_diff_rf_sel);
+			this.vertices[3*ip  ] += frac * this.velocities[3*ip  ];
+			this.vertices[3*ip+1] += frac * this.velocities[3*ip+1];
+			this.vertices[3*ip+2] += frac * this.velocities[3*ip+2];
+			this.velocities[3*ip  ] += frac * acceleration[0];
+			this.velocities[3*ip+1] += frac * acceleration[1];
+			this.velocities[3*ip+2] += frac * acceleration[2];
+			this.colors[4*ip  ] += frac * color_diff[0];
+			this.colors[4*ip+1] += frac * color_diff[1];
+			this.colors[4*ip+2] += frac * color_diff[2];
+			this.colors[4*ip+3] += frac * color_diff[3];
 		}
 	}
 	else
 	{
+		var extra_velocity = vec3.create();
+		var color_diff = vec4.create();
 		for (var ip = 0; ip < this.nr_particles_alive; ++ip)
 		{
-			var extra_velocity = this.def.randomAcceleration(acc_rf_sel);
-			var color_diff = this.def.randomColorDifference(col_diff_rf_sel);
-			for (var i = 0; i < 3; ++i)
-				this.vertices[3*ip+i] += frac * (this.velocities[3*ip+i] + extra_velocity[i]);
-			for (var i = 0; i < 4; ++i)
-				this.colors[4*ip+i] += frac * color_diff[i];
+			this.def.getRandomAcceleration(extra_velocity, acc_rf_sel);
+			this.def.getRandomColorDifference(color_diff, col_diff_rf_sel);
+			this.vertices[3*ip  ] += frac * (this.velocities[3*ip  ] + extra_velocity[0]);
+			this.vertices[3*ip+1] += frac * (this.velocities[3*ip+1] + extra_velocity[1]);
+			this.vertices[3*ip+2] += frac * (this.velocities[3*ip+2] + extra_velocity[2]);
+			this.colors[4*ip  ] += frac * color_diff[0];
+			this.colors[4*ip+1] += frac * color_diff[1];
+			this.colors[4*ip+2] += frac * color_diff[2];
+			this.colors[4*ip+3] += frac * color_diff[3];
 		}
 	}
 }

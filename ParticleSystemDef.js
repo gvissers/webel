@@ -46,12 +46,12 @@ ParticleSystemDef.prototype.randomVelocity = function()
 	return res;
 };
 
-ParticleSystemDef.prototype.randomAcceleration = function()
+ParticleSystemDef.prototype.getRandomAcceleration = function(out, rf_sel)
 {
-	var res = vec3.create();
-	for (var i = 0; i < 3; ++i)
-		res[i] = this.random(this.min_acceleration[i], this.max_acceleration[i]);
-	return res;
+	var rf = ParticleSystemDef.RandomFunctions[rf_sel];
+	out[0] = rf(this.min_acceleration[0], this.max_acceleration[0]);
+	out[1] = rf(this.min_acceleration[1], this.max_acceleration[1]);
+	out[2] = rf(this.min_acceleration[2], this.max_acceleration[2]);
 };
 
 ParticleSystemDef.prototype.randomColor = function()
@@ -62,10 +62,11 @@ ParticleSystemDef.prototype.randomColor = function()
 	return res;
 };
 
-ParticleSystemDef.prototype.randomColorDifference = function()
+ParticleSystemDef.prototype.getRandomColorDifference = function(out, rf_sel)
 {
-	var res = vec4.create();
-	for (var i = 0; i < 4; ++i)
-		res[i] = this.random(this.min_color_diff[i], this.max_color_diff[i]);
-	return res;
+	var rf = ParticleSystemDef.RandomFunctions[rf_sel];
+	out[0] = rf(this.min_color_diff[0], this.max_color_diff[0]);
+	out[1] = rf(this.min_color_diff[1], this.max_color_diff[1]);
+	out[2] = rf(this.min_color_diff[2], this.max_color_diff[2]);
+	out[3] = rf(this.min_color_diff[3], this.max_color_diff[3]);
 };
