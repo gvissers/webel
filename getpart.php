@@ -73,14 +73,13 @@ try
 	$fname_json = $basename . '.part.json';
 	$have_json = file_exists($fname_json);
 
-	$read_json = false;
+	$read_json = $have_json;
 	if ($basename !== '__all__')
 	{
 		if (!$have_part)
 		{
 			if (!$have_json)
 				throw new Exception('File not found');
-			$read_json = true;
 		}
 		else if ($have_json)
 		{
