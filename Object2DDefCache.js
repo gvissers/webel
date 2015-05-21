@@ -50,15 +50,15 @@ Object2DDefCache.prototype.fill = function(defs)
 				def.texture = texture_cache.get(def.texture_fname);
 			this._cache[fname] = def;
 		}
+		this._preloaded = true;
 
+		// Now try to textures requested before preload completed
 		for (var i = 0; i < this._callbacks.length; ++i)
 		{
 			var cb = this._callbacks[i];
-			cb.callback(this._cache[cb.fname]);
+			this.get(cb.fname, cb.callback);
 		}
 		this._callbacks = [];
-
-		this._preloaded = true;
 	}
 
 };
