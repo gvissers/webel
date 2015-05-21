@@ -1,34 +1,7 @@
 <?php
 
-function get2d0($basename)
+function get2d0($fname)
 {
-	$fname_2d0 = $basename . '.2d0';
-	$have_2d0 = file_exists($fname_2d0);
-	$fname_json = $basename . '.json';
-	$have_json = file_exists($fname_json);
-
-	$read_json = false;
-	if (!$have_2d0)
-	{
-		if (!$have_json)
-			throw new Exception('File not found');
-		$read_json = true;
-	}
-	else if ($have_json)
-	{
-		$stat_2d0 = stat($fname_2d0);
-		$stat_json = stat($fname_json);
-		$read_json = $stat_2d0['mtime'] < $stat_json['mtime'];
-	}
-
-	if ($read_json)
-	{
-		$json_data = file_get_contents($fname_json);
-		if ($json_data === false)
-			throw new Exception('Failed to read file');
-		return $json_data;
-	}
-
 	$types = array(
 		'GROUND' => 0,
 		'PLANT' => 1,
@@ -38,7 +11,7 @@ function get2d0($basename)
 
 	$file_width = 1;
 	$file_height = 1;
-	$data = file_get_contents($fname_2d0);
+	$data = file_get_contents($fname);
 	$res = array('alpha_test' => 0.18);
 	foreach(explode("\n", $data) as $line)
 	{
@@ -89,9 +62,7 @@ function get2d0($basename)
 	if (isset($res['v_end']))
 		$res['v_end'] /= $file_height;
 
-	$json_data = json_encode($res);
-	@file_put_contents($fname_json, $json_data);
-	return $json_data;
+	return $res;
 }
 
 header('Content-Type: application/json');
@@ -104,30 +75,59 @@ try
 		throw new Exception('Invalid file name');
 	$basename = $matches[2];
 
+	$fname_2d0 = $basename . '.2d0';
+	$have_2d0 = file_exists($fname_2d0);
+	$fname_json = $basename . '.json';
+	$have_json = file_exists($fname_json);
+
+	$read_json = false;
 	if ($basename != '__all__')
 	{
-		$json_data = get2d0($basename);
-		echo $json_data;
+		if (!$have_2d0)
+		{
+			if (!$have_json)
+				throw new Exception('File not found');
+			$read_json = true;
+		}
+		else if ($have_json)
+		{
+			$stat_2d0 = stat($fname_2d0);
+			$stat_json = stat($fname_json);
+			$read_json = $stat_2d0['mtime'] < $stat_json['mtime'];
+		}
+	}
+
+	if ($read_json)
+	{
+		if (@readfile($fname_json) === false)
+			throw new Exception('Failed to read file');
 	}
 	else
 	{
-		$res = array();
-		$iter = new RecursiveIteratorIterator(
-					new RecursiveDirectoryIterator('.',
-						FilesystemIterator::KEY_AS_PATHNAME
-						| FilesystemIterator::SKIP_DOTS
-						| FilesystemIterator::FOLLOW_SYMLINKS));
-		foreach ($iter as $fname => $path_obj)
+		if ($basename == '__all__')
 		{
-			if ($path_obj->isFile() && $path_obj->getExtension() == '2d0')
+			$res = array();
+			$iter = new RecursiveIteratorIterator(
+						new RecursiveDirectoryIterator('.',
+							FilesystemIterator::KEY_AS_PATHNAME
+							| FilesystemIterator::SKIP_DOTS
+							| FilesystemIterator::FOLLOW_SYMLINKS));
+			foreach ($iter as $fname => $path_obj)
 			{
-				$basename = substr($fname, 2, -4);
-				$json_data = get2d0($basename);
-				$res["{$basename}.2d0"] = json_decode($json_data);
+				if ($path_obj->isFile() && $path_obj->getExtension() == '2d0')
+				{
+					$sfname = substr($fname, 2);
+					$res[$sfname] = get2d0($sfname);
+				}
 			}
+		}
+		else
+		{
+			$res = get2d0($fname_2d0);
 		}
 
 		$json_data = json_encode($res);
+		@file_put_contents($fname_json, $json_data);
 		echo $json_data;
 	}
 }

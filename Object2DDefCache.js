@@ -52,7 +52,7 @@ Object2DDefCache.prototype.fill = function(defs)
 		}
 		this._preloaded = true;
 
-		// Now try to textures requested before preload completed
+		// Now try to get 2d objects requested before preload completed
 		for (var i = 0; i < this._callbacks.length; ++i)
 		{
 			var cb = this._callbacks[i];
