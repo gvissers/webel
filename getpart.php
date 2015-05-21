@@ -6,7 +6,6 @@ function getpart($fname)
 	$data = str_replace(',', ' ', $data);
 
 	$fields = sscanf($data, '%d %u %x %x %u %d %d %f %u %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f%n');
-error_log(print_r($fields,1));
 	if (count($fields) != 45)
 		throw new Exception("Unable to parse particle system definition in file {$fname}");
 
