@@ -168,7 +168,7 @@ Camera.prototype.zoomIn = function()
 Camera.prototype.zoomOut = function()
 {
 	this.zoom_distance += Camera.zoom_delta;
-	if (this.zoom_distance > Camera.max_zoom_delta)
-		this.zoom_distance = Camera.max_zoom_delta;
+	if (this.zoom_distance > Camera.max_zoom_distance)
+		this.zoom_distance = Camera.max_zoom_distance;
 	this.setBoundingBox();
 };
