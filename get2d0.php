@@ -24,7 +24,7 @@ function get2d0($fname)
 		switch ($key)
 		{
 			case 'texture':
-				$res['texture_fname'] = dirname($basename) . '/' . $val;
+				$res['texture_fname'] = dirname($fname) . '/' . $val;
 				break;
 			case 'file_x_len':
 				$file_width = $val;
@@ -77,7 +77,7 @@ try
 
 	$fname_2d0 = $basename . '.2d0';
 	$have_2d0 = file_exists($fname_2d0);
-	$fname_json = $basename . '.json';
+	$fname_json = $basename . '2d0.json';
 	$have_json = file_exists($fname_json);
 
 	$read_json = false;

@@ -71,7 +71,7 @@ try
 
 	$fname_part = $basename . '.part';
 	$have_part = file_exists($fname_part);
-	$fname_json = $basename . '.json';
+	$fname_json = $basename . '.part.json';
 	$have_json = file_exists($fname_json);
 
 	$read_json = false;
