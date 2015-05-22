@@ -89,8 +89,8 @@ function Shaders()
 
 		gl.enableVertexAttribArray(program.vertexPositionAttribute);
 
-		program.pMatrixUniform = gl.getUniformLocation(program, "uPMatrix");
-		program.mvMatrixUniform = gl.getUniformLocation(program, "uMVMatrix");
+		program.projection = gl.getUniformLocation(program, "projection");
+		program.model_view = gl.getUniformLocation(program, "model_view");
 		program.useLightingUniform = gl.getUniformLocation(program, "uUseLighting");
 		program.nMatrixUniform = gl.getUniformLocation(program, "uNMatrix");
 		program.ambientColorUniform = gl.getUniformLocation(program, "uAmbientColor");

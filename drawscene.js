@@ -4,8 +4,8 @@ var near_plane = 0.1;
 var far_plane = 100;
 
 var gl;
-var model_view_matrix = new ModelViewMatrix();
-var pMatrix = mat4.create();
+var model_view_matrix = new ModelViewMatrix;
+var projection_matrix = new ProjectionMatrix;
 var game_window;
 var lastTime = 0;
 var shaders = new Shaders();
@@ -42,7 +42,7 @@ function initGL(canvas)
 
 function setMatrixUniforms()
 {
-	gl.uniformMatrix4fv(shaders.program.pMatrixUniform, false, pMatrix);
+	projection_matrix.setUniform();
 	model_view_matrix.setUniform();
 	gl.uniformMatrix3fv(shaders.program.nMatrixUniform, false,
 		model_view_matrix.normal());
@@ -59,7 +59,7 @@ function drawScene()
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	var aspect = gl.viewportWidth/gl.viewportHeight;
-	mat4.perspective(pMatrix, Camera.field_of_view*Math.PI/180, aspect,
+	projection_matrix.perspective(Camera.field_of_view*Math.PI/180, aspect,
 		near_plane, far_plane);
 
 	model_view_matrix.setIdentity();

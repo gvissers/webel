@@ -18,6 +18,7 @@
 <!--
 		<script type="text/javascript" src="GameWindow.js"></script>
 -->
+		<script type="text/javascript" src="GLMatrix.js"></script>
 		<script type="text/javascript" src="GroundTileMap.js"></script>
 		<script type="text/javascript" src="HalfLUT.js"></script>
 		<script type="text/javascript" src="KeyHandler.js"></script>
@@ -31,6 +32,7 @@
 		<script type="text/javascript" src="ParticleSystem.js"></script>
 		<script type="text/javascript" src="ParticleSystemDef.js"></script>
 		<script type="text/javascript" src="ParticleSystemDefCache.js"></script>
+		<script type="text/javascript" src="ProjectionMatrix.js"></script>
 		<script type="text/javascript" src="Material.js"></script>
 		<script type="text/javascript" src="Shaders.js"></script>
 		<script type="text/javascript" src="TextureCache.js"></script>

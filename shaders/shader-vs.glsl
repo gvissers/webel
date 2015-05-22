@@ -3,8 +3,8 @@ attribute vec3 aVertexNormal;
 attribute vec4 aVertexColor;
 attribute vec2 aTextureCoord;
 
-uniform mat4 uMVMatrix;
-uniform mat4 uPMatrix;
+uniform mat4 model_view;
+uniform mat4 projection;
 uniform mat3 uNMatrix;
 
 uniform bool uUseLighting;
@@ -21,7 +21,7 @@ varying vec3 vLightWeighting;
 
 void main(void)
 {
-	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+	gl_Position = projection * model_view * vec4(aVertexPosition, 1.0);
 	gl_PointSize = point_size;
 	vColor = aVertexColor;
 	vTextureCoord = aTextureCoord;
