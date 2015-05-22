@@ -23,3 +23,17 @@ ProjectionMatrix.prototype.perspective = function(field_of_view, aspect,
 {
 	mat4.perspective(this.matrix, field_of_view, aspect, near_plane, far_plane);
 };
+
+/**
+ * Set up an orthogonal projection in this matrix.
+ * @param left   Left side of the frustum
+ * @param right  Right side of the frustum
+ * @param bottom Bottom side of the frustum
+ * @param top    Top side of the frustum
+ * @param near   Near side of the frustum
+ * @param far    Far side of the frustum
+ */
+ProjectionMatrix.prototype.ortho = function(left, right, bottom, top, near, far)
+{
+	mat4.ortho(this.matrix, left, right, bottom, top, near, far);
+};
