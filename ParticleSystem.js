@@ -401,6 +401,4 @@ ParticleSystem.prototype.draw = function()
 		gl.FLOAT, false, 0, 0);
 
 	gl.drawArrays(gl.POINTS, 0, this.nr_particles_alive);
-//	gl.drawArrays(gl.POINTS, 0, 12);
-//	gl.drawArrays(gl.TRIANGLES, 0, 12);
 }

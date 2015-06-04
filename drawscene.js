@@ -18,6 +18,8 @@ var key_handler = new KeyHandler();
 var fps_counter = new FPSCounter(60, new Date().getTime());
 var half_lut = new HalfLUT();
 var map;
+var font;
+var text_buffer;
 
 function logError(msg)
 {
@@ -43,6 +45,8 @@ function initGL(canvas)
 
 function to3DMode()
 {
+	gl.enable(gl.DEPTH_TEST);
+
 	var aspect = gl.viewportWidth/gl.viewportHeight;
 	projection_matrix.perspective(Camera.field_of_view*Math.PI/180, aspect,
 		near_plane, far_plane);
@@ -58,7 +62,9 @@ function to3DMode()
 
 function to2DMode()
 {
-	projection_matrix.ortho(0.0, gl.viewportWidth, 0.0, gl.viewportHeight,
+	gl.disable(gl.DEPTH_TEST);
+
+	projection_matrix.ortho(0.0, gl.viewportWidth, gl.viewportHeight, 0.0,
 		-1.0, 1.0);
 	projection_matrix.setUniform();
 
@@ -120,6 +126,7 @@ function drawScene()
 	map.draw();
 
 	to2DMode();
+	text_buffer.drawCharAt(10, 10, 65);
 	drawSquare();
 }
 
@@ -156,6 +163,8 @@ function webGLStart()
 	object_2d_def_cache = new Object2DDefCache();
 	object_3d_def_cache = new Object3DDefCache();
 	particle_system_def_cache = new ParticleSystemDefCache();
+	font = new Font;
+	text_buffer = new TextBuffer(1000);
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 

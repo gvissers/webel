@@ -145,7 +145,6 @@ GameMap.prototype.draw = function()
 	gl.enableVertexAttribArray(shaders.program.textureCoordAttribute);
 
 	gl.disable(gl.BLEND);
-	gl.enable(gl.DEPTH_TEST);
 
 	var tic = new Date().getTime();
 	this.tile_map.draw();

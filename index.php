@@ -9,10 +9,13 @@
 
 		<script type="text/javascript" src="ajaxblob.js"></script>
 
+		<script type="text/javascript" src="Protocol.js"></script>
+
 		<script type="text/javascript" src="BoundingBox.js"></script>
 		<script type="text/javascript" src="Camera.js"></script>
 		<script type="text/javascript" src="DDS.js"></script>
 		<script type="text/javascript" src="ElevationMap.js"></script>
+		<script type="text/javascript" src="Font.js"></script>
 		<script type="text/javascript" src="FPSCounter.js"></script>
 		<script type="text/javascript" src="GameMap.js"></script>
 <!--
@@ -35,6 +38,7 @@
 		<script type="text/javascript" src="ProjectionMatrix.js"></script>
 		<script type="text/javascript" src="Material.js"></script>
 		<script type="text/javascript" src="Shaders.js"></script>
+		<script type="text/javascript" src="TextBuffer.js"></script>
 		<script type="text/javascript" src="TextureCache.js"></script>
 		<script type="text/javascript" src="util.js"></script>
 
