@@ -2,3 +2,8 @@
 3dobjects
 maps
 textures
+tools/make_atlas/.deps/
+tools/make_atlas/.objs/
+tools/make_atlas/make_atlas
+atlas/*.dds
+atlas/*.atlas.json
