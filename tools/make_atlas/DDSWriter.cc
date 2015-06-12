@@ -9,9 +9,9 @@ void DDSWriter::writeDXT1(const Image& image)
 	writeHeader(image, DDS::FOUR_CC_DXT1);
 	for (int lvl = 0; lvl < image.nrMipmaps(); ++lvl)
 	{
-		for (int i = 0; i < image.height(); i += 4)
+		for (int i = 0; i < image.height(lvl); i += 4)
 		{
-			for (int j = 0;  j < image.width(); j += 4)
+			for (int j = 0;  j < image.width(lvl); j += 4)
 				writeColorBlock(image, i, j, lvl);
 		}
 	}
