@@ -9,7 +9,12 @@
 function TextureCache()
 {
 	/// The actual cache object, initially containing only a single-pixel white texture
-	var _cache = { "white": _createWhitePixel() };
+	var _cache = {
+		"white": _createWhitePixel(),
+		// These are single color textures, don't bother loading them
+		"3dobjects/tile0.dds": _createPixel(new Uint8Array([61, 132, 169, 255])),
+		"3dobjects/tile39.dds": _createPixel(new Uint8Array([0, 0, 0, 255]))
+	};
 	/// Extensions provided by our graphics card
 	var _extensions;
 	/// Compressed texture format that are supported
@@ -26,10 +31,22 @@ function TextureCache()
 	 */
 	function _createWhitePixel()
 	{
+		return _createPixel(new Uint8Array([255, 255, 255, 255]));
+	}
+
+	/**
+	 * Create single pixel texture
+	 *
+	 * Create a new single-pixel texture with color @a color.
+	 * @param color The color of the pixel, as a Uint8Array
+	 * @return The new texture
+	 */
+	function _createPixel(color)
+	{
 		var texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-			new Uint8Array([255, 255, 255, 255]));
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA,
+			gl.UNSIGNED_BYTE, color);
 		return texture;
 	}
 
