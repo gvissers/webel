@@ -38,6 +38,7 @@
 		<script type="text/javascript" src="ProjectionMatrix.js"></script>
 		<script type="text/javascript" src="Material.js"></script>
 		<script type="text/javascript" src="Shaders.js"></script>
+		<script type="text/javascript" src="Signal.js"></script>
 		<script type="text/javascript" src="TextBuffer.js"></script>
 		<script type="text/javascript" src="TextureCache.js"></script>
 		<script type="text/javascript" src="util.js"></script>

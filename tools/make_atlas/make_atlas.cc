@@ -92,7 +92,7 @@ void readAtlasDescription(AtlasDesc & desc, const char* desc_fname)
 
 void writeAtlasJson(std::ostream& os, const AtlasDesc& desc, int w, int h)
 {
-	os << "{\"atlas\":\"" << desc.outFile() << ".dds\",\"textures\":{";
+	os << "{\"" << desc.outFile() << ".dds\":{";
 	bool first = true;
 	for (const auto& tup: desc)
 	{

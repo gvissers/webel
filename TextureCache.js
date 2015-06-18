@@ -15,10 +15,41 @@ function TextureCache()
 		"3dobjects/tile0.dds": _createPixel(new Uint8Array([61, 132, 169, 255])),
 		"3dobjects/tile39.dds": _createPixel(new Uint8Array([0, 0, 0, 255]))
 	};
+	/// Texture atlases, combining collections of small textures into a single large one
+	var _atlases = {};
+	/// Whether the texture atlases have been loaded yet
+	var _atlases_loaded = false;
 	/// Extensions provided by our graphics card
 	var _extensions;
 	/// Compressed texture format that are supported
 	var _supported = {};
+
+	// Get the texture atlases
+	var _atlas_callbacks = [];
+	var this_obj = this;
+	$.ajax("__all__.atlas", {
+		dataType: "json",
+		error: function() {
+			logError("Failed to get texture atlases");
+		},
+		success: function(atlas) {
+			if ("error" in atlas)
+			{
+				logError(atlas.error)
+			}
+			else
+			{
+				_atlases = atlas;
+				_atlases_loaded = true;
+				for (var i = 0; i < _atlas_callbacks.length; ++i)
+				{
+					var tup = _atlas_callbacks[i];
+					this_obj.lookupAtlas(tup.fname, tup.callback);
+				}
+				Signal.emit(Event.TEXTURE_ATLASES_LOADED);
+			}
+		}
+	});
 
 	/**
 	 * Create single white pixel texture
@@ -167,6 +198,46 @@ function TextureCache()
 	this.bind = function(fname)
 	{
 		gl.bindTexture(gl.TEXTURE_2D, this.get(fname));
+	};
+
+	/**
+	 * Try to find a texture in one of the texture atlases. If found, return
+	 * the name of the atlas, and the coordinates of the texture in the atlas.
+	 * If not, return the original file name, and texture coordinates spanning
+	 * the whole texture.
+	 * @param fname The file name of the texture to look up
+	 * @return Name of the atlas and coordinates of the texture in the atlas
+	 */
+	this.lookupAtlas = function(fname)
+	{
+		if (_atlases_loaded)
+		{
+			for (var atlas_name in _atlases)
+			{
+				if (fname in _atlases[atlas_name])
+				{
+					return {
+						fname: atlas_name,
+						coords: _atlases[atlas_name][fname]
+					};
+				}
+			}
+		}
+
+		return {
+			fname: fname,
+			coords: { u_start: 0.0, v_start: 0.0, u_end: 1.0, v_end: 1.0 }
+		};
+	};
+
+	/**
+	 * Check if the texture atlas descriptions are loaded, and if so, emit
+	 * the corresponding signal
+	 */
+	this.checkAtlasesLoaded = function()
+	{
+		if (_atlases_loaded)
+			Signal.emit(Signal.TEXTURE_ATLASES_LOADED);
 	}
 
 	// Check if we have the required GL extensions for handling compressed textures

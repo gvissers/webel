@@ -12,16 +12,36 @@ function GroundTileMap(width, height, tiles)
 	this.width = width;
 	/// Height of the map (nr of tiles in y direction)
 	this.height = height;
+	/// Codes of the tiles to draw
+	this.tile_numbers = tiles;
 	/// Offset in index buffer, sorted by texture
-	this.texture_tiles = null;
+	this.texture_tiles = [];
 
+	/// GL buffer for the vertices of the tiles
+	this.vertex_buffer = gl.createBuffer();
+	/// GL buffer for the texture coordinates of the tiles
+	this.texture_coord_buffer = gl.createBuffer();
+	/// GL buffer for the indices of the vertices to draw
+	this.index_buffer = gl.createBuffer();
+
+	// Load the textures from a texture atlas where possible
+	var this_obj = this;
+	Signal.bind(Signal.TEXTURE_ATLASES_LOADED, function() { this_obj.createBuffers(); });
+	texture_cache.checkAtlasesLoaded();
+}
+
+/**
+ * Fill the OpenGL buffers used in drawing the tiles
+ */
+GroundTileMap.prototype.createBuffers = function()
+{
 	var tile_idx = 0;
 	var sorted_tiles = {};
 	for (var iy = 0; iy < this.height; ++iy)
 	{
 		for (var ix = 0; ix < this.width; ++ix, ++tile_idx)
 		{
-			var number = tiles[tile_idx];
+			var number = this.tile_numbers[tile_idx];
 			if (number == GroundTileMap.invalid_number)
 				continue;
 
@@ -31,69 +51,78 @@ function GroundTileMap(width, height, tiles)
 		}
 	}
 
-	// Set up buffers
-	var vertices = [];
-	var texture_coords = [];
-	var indices = [];
-	var texture_tiles_offset = 0;
-	this.texture_tiles = [];
+	var atlas_sorted_tiles = {};
 	for (var number in sorted_tiles)
 	{
-		var idxs = sorted_tiles[number];
 		var fname = "3dobjects/tile" + number + ".dds";
+		var tup = texture_cache.lookupAtlas("3dobjects/tile" + number + ".dds");
+		if (!(tup.fname in atlas_sorted_tiles))
+			atlas_sorted_tiles[tup.fname] = [];
+		for (var i = 0; i < sorted_tiles[number].length; ++i)
+		{
+			atlas_sorted_tiles[tup.fname].push({
+				index: sorted_tiles[number][i],
+				number: number,
+				texture_coords: tup.coords
+			});
+		}
+	}
+
+	// Set up buffers
+	var vertices = new Float32Array(12 * this.height * this.width);
+	var texture_coords = new Float32Array(8 * this.height * this.width);
+	var indices = new Uint16Array(6 * this.height * this.width);
+	var index_offset = 0;
+	var count = 0;
+	this.texture_tiles = [];
+	for (var fname in atlas_sorted_tiles)
+	{
+		var tups = atlas_sorted_tiles[fname];
 		this.texture_tiles.push({
 			texture: texture_cache.get(fname),
-			count: 6*idxs.length,
-			offset: texture_tiles_offset
+			count: 6*tups.length,
+			offset: index_offset
 		});
-		texture_tiles_offset += idxs.length * 6 * 2;
-		var z;
-		if (number == 0 || (number > 230 && number < 255))
-			z = GroundTileMap.water_elevation;
-		else
-			z = GroundTileMap.normal_elevation;
+		index_offset += tups.length * 6 * 2;
 
-		for (var i = 0; i < idxs.length; ++i)
+		for (var i = 0; i < tups.length; ++i)
 		{
-			var idx = idxs[i];
-			var iy = Math.floor(idx / this.width);
-			var ix = idx % this.width;
+			var tup = tups[i];
+
+			var iy = Math.floor(tup.index / this.width);
+			var ix = tup.index % this.width;
 
 			var x0 = ix * GroundTileMap.tile_size_meters;
 			var y0 = iy * GroundTileMap.tile_size_meters;
 			var x1 = (ix+1) * GroundTileMap.tile_size_meters;
 			var y1 = (iy+1) * GroundTileMap.tile_size_meters;
-			var idx_off = vertices.length/3;
-			vertices = vertices.concat([
-				x0, y0, z,
-				x1, y0, z,
-				x1, y1, z,
-				x0, y1, z
-			]);
-			texture_coords = texture_coords.concat([
-				0, 0,
-				1, 0,
-				1, 1,
-				0, 1
-			]);
-			indices = indices.concat([
-				idx_off+0, idx_off+1, idx_off+2,
-				idx_off+0, idx_off+2, idx_off+3
-			]);
+			var z = (tup.number == 0 || (tup.number > 230 && tup.number < 255))
+				? GroundTileMap.water_elevation
+				: GroundTileMap.normal_elevation;
+			var off = 4 * count;
+
+			vertices.set([x0, y0, z, x1, y0, z, x1, y1, z, x0, y1, z],
+				12 * count);
+			texture_coords.set([
+					tup.texture_coords.u_start, tup.texture_coords.v_start,
+					tup.texture_coords.u_end,   tup.texture_coords.v_start,
+					tup.texture_coords.u_end,   tup.texture_coords.v_end,
+					tup.texture_coords.u_start, tup.texture_coords.v_end
+				], 8 * count);
+			indices.set([off+0, off+1, off+2, off+0, off+2, off+3], 6 * count);
+
+			++count;
 		}
 	}
 
-	this.vertex_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-	this.texture_coord_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.texture_coord_buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texture_coords), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, texture_coords, gl.STATIC_DRAW);
 
-	this.index_buffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.index_buffer);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
 }
 
 /// Tile number used for invalid or no tile
