@@ -2,9 +2,10 @@
 #include <memory>
 #include <sstream>
 #include <unordered_map>
-#include "Image.hh"
+#include "DDS.hh"
 #include "DDSReader.hh"
 #include "DDSWriter.hh"
+#include "Image.hh"
 
 struct Texture
 {
@@ -27,6 +28,7 @@ public:
 	AtlasDesc(): _offsets() {}
 
 	void setOutFile(const std::string fname) { _out_fname = fname; }
+	void setOutFormat(std::uint32_t format) { _out_format = format; }
 	void add(const std::string& fname, Image image, int i, int j)
 	{
 		_offsets.emplace(fname, Texture(fname, std::move(image), i, j));
@@ -36,9 +38,11 @@ public:
 	const_iterator end() const { return _offsets.end(); }
 
 	const std::string& outFile() const { return _out_fname; }
+	std::uint32_t outFormat() const { return _out_format; }
 
 private:
 	std::string _out_fname;
+	std::uint32_t _out_format;
 	std::unordered_map<std::string, Texture> _offsets;
 };
 
@@ -72,6 +76,7 @@ void readAtlasDescription(AtlasDesc & desc, const char* desc_fname)
 	is >> fname;
 	desc.setOutFile(fname);
 
+	std::uint32_t out_format = DDS::FOUR_CC_DXT1;
 	while (true)
 	{
 		is >> fname >> x >> y;
@@ -81,13 +86,22 @@ void readAtlasDescription(AtlasDesc & desc, const char* desc_fname)
 			throw std::runtime_error("Failed to read from atlas file");
 
 		std::cout << "Reading image " << fname << '\n';
+
 		std::ifstream img_is(fname);
 		DDSReader reader(img_is);
+		DDSHeader header = reader.readHeader();
+		if (header.pixel_format.four_cc == DDS::FOUR_CC_DXT5)
+			out_format = DDS::FOUR_CC_DXT5;
+		else if (header.pixel_format.four_cc == DDS::FOUR_CC_DXT3)
+			out_format = DDS::FOUR_CC_DXT3;
+
 		desc.add(fname, reader.readImage(), x, y);
 		img_is.close();
 
 	}
 	is.close();
+
+	desc.setOutFormat(out_format);
 }
 
 void writeAtlasJson(std::ostream& os, const AtlasDesc& desc, int w, int h)
@@ -137,7 +151,17 @@ int main(int argc, const char* argv[])
 
 		std::ofstream os((desc.outFile() + ".dds").c_str());
 		DDSWriter writer(os);
-		writer.writeDXT1(atlas);
+		switch (desc.outFormat())
+		{
+			case DDS::FOUR_CC_DXT1:
+				writer.writeDXT1(atlas);
+				break;
+			case DDS::FOUR_CC_DXT5:
+				writer.writeDXT5(atlas);
+				break;
+			default:
+				throw std::runtime_error("Unable to handle output format");
+		}
 		os.close();
 
 		os.open((desc.outFile() + ".atlas.json").c_str());
