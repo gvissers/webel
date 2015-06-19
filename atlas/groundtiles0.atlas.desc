@@ -1,0 +1,17 @@
+atlas/groundtiles0
+3dobjects/tile1.dds     0    0
+3dobjects/tile3.dds     0  512
+3dobjects/tile5.dds     0 1024
+3dobjects/tile6.dds     0 1536
+3dobjects/tile7.dds   512    0
+3dobjects/tile9.dds   512  512
+3dobjects/tile11.dds  512 1024
+3dobjects/tile12.dds  512 1536
+3dobjects/tile13.dds 1024    0
+3dobjects/tile14.dds 1024  512
+3dobjects/tile15.dds 1024 1024
+3dobjects/tile16.dds 1024 1536
+3dobjects/tile17.dds 1536    0
+3dobjects/tile24.dds 1536  512
+3dobjects/tile46.dds 1536 1024
+3dobjects/tile48.dds 1536 1536

@@ -1,0 +1,18 @@
+atlas/2dobjects0
+2dobjects/ground/bones.dds          0   0
+2dobjects/ground/dirt.dds           0 256
+2dobjects/ground/dirt2.dds          0 512
+2dobjects/ground/dirt2_edges.dds    0 768
+2dobjects/ground/dirt3.dds        256   0
+2dobjects/ground/dirt3_edges.dds  256 256
+2dobjects/ground/dirt4.dds        256 512
+2dobjects/ground/grass_edges.dds  256 768
+2dobjects/ground/grass_edges2.dds 512   0
+2dobjects/ground/grass1.dds       512 256
+2dobjects/ground/grass2.dds       512 512
+2dobjects/ground/hay.dds          512 768
+2dobjects/ground/leaves1.dds      768   0
+2dobjects/ground/leaves3.dds      768 256
+2dobjects/ground/pineneedles.dds  768 512
+2dobjects/ground/plants.dds       768 768
+
