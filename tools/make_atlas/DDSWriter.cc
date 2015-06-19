@@ -3,6 +3,7 @@
 #include "DDS.hh"
 #include "DDSHeader.hh"
 #include "DXTColorBlock.hh"
+#include "DXTInterpolatedAlphaBlock.hh"
 
 void DDSWriter::writeDXT1(const Image& image)
 {
@@ -13,6 +14,22 @@ void DDSWriter::writeDXT1(const Image& image)
 		{
 			for (int j = 0;  j < image.width(lvl); j += 4)
 				writeColorBlock(image, i, j, lvl);
+		}
+	}
+}
+
+void DDSWriter::writeDXT5(const Image& image)
+{
+	writeHeader(image, DDS::FOUR_CC_DXT5);
+	for (int lvl = 0; lvl < image.nrMipmaps(); ++lvl)
+	{
+		for (int i = 0; i < image.height(lvl); i += 4)
+		{
+			for (int j = 0;  j < image.width(lvl); j += 4)
+			{
+				writeInterpolatedAlphaBlock(image, i, j, lvl);
+				writeColorBlock(image, i, j, lvl);
+			}
 		}
 	}
 }
@@ -95,21 +112,69 @@ void DDSWriter::writeColorBlock(const Image& image, int i, int j, int lvl)
 	_os.write(reinterpret_cast<const char*>(&block), sizeof(block));
 }
 
+void DDSWriter::writeInterpolatedAlphaBlock(const Image& image, int i, int j, int lvl)
+{
+	DXTInterpolatedAlphaBlock block;
+
+	float alphas[6];
+	std::tie(alphas[1], alphas[0]) = getMinMaxAlpha(image, i, j, lvl);
+
+	block.alphas[0] = Pixel::floatToByte(alphas[0]);
+	block.alphas[1] = Pixel::floatToByte(alphas[1]);
+
+	alphas[2] = (6.0 * alphas[0] + 1.0 * alphas[1]) / 7.0;
+	alphas[3] = (5.0 * alphas[0] + 2.0 * alphas[1]) / 7.0;
+	alphas[4] = (4.0 * alphas[0] + 3.0 * alphas[1]) / 7.0;
+	alphas[5] = (3.0 * alphas[0] + 4.0 * alphas[1]) / 7.0;
+	alphas[6] = (2.0 * alphas[0] + 5.0 * alphas[1]) / 7.0;
+	alphas[7] = (1.0 * alphas[0] + 6.0 * alphas[1]) / 7.0;
+
+	std::uint64_t index = 0;
+	for (int ip = 0; ip < 16; ++ip)
+	{
+		int i0 = i + ip/4;
+		int j0 = j + ip%4;
+		if (i0 >= image.height(lvl) || j0 >= image.width(lvl))
+			continue;
+
+		const Pixel& p = image(i0, j0, lvl);
+		float min_dist = 2.0;
+		std::uint64_t idx = 0;
+		for (int ia = 0; ia < 6; ++ia)
+		{
+			float dist = std::abs(p.alpha() - alphas[ia]);
+			if (dist < min_dist)
+			{
+				idx = ia;
+				min_dist = dist;
+			}
+		}
+		index |= (idx << (3*ip));
+	}
+
+	block.indices[0] = index & 0xffff;
+	block.indices[1] = (index >> 16) & 0xffff;
+	block.indices[2] = (index >> 32) & 0xffff;
+
+	_os.write(reinterpret_cast<const char*>(&block), sizeof(block));
+};
+
+
 const std::pair<Pixel, Pixel> DDSWriter::getMinMaxColors(const Image& image,
 	int i, int j, int lvl)
 {
 	switch (_fit_method)
 	{
 		case END_PIXELS:
-			return getMinMaxEndPixels(image, i, j, lvl);
+			return getMinMaxColorsEndPixels(image, i, j, lvl);
 		case LUMINANCE:
-			return getMinMaxLuminance(image, i, j, lvl);
+			return getMinMaxColorsLuminance(image, i, j, lvl);
 		default:
 			throw std::runtime_error("Unknown fit method");
 	}
 }
 
-const std::pair<Pixel, Pixel> DDSWriter::getMinMaxEndPixels(const Image& image,
+const std::pair<Pixel, Pixel> DDSWriter::getMinMaxColorsEndPixels(const Image& image,
 	int i, int j, int lvl)
 {
 	float max_distance = -1;
@@ -145,7 +210,7 @@ const std::pair<Pixel, Pixel> DDSWriter::getMinMaxEndPixels(const Image& image,
 		: std::make_pair(p_max, p_min);
 }
 
-const std::pair<Pixel, Pixel> DDSWriter::getMinMaxLuminance(const Image& image,
+const std::pair<Pixel, Pixel> DDSWriter::getMinMaxColorsLuminance(const Image& image,
 	int i, int j, int lvl)
 {
 	float min_luminance = 3.0f, max_luminance = -1.0f;
@@ -174,4 +239,23 @@ const std::pair<Pixel, Pixel> DDSWriter::getMinMaxLuminance(const Image& image,
 	return p_min.color565() <= p_max.color565()
 		? std::make_pair(p_min, p_max)
 		: std::make_pair(p_max, p_min);
+}
+
+const std::pair<float, float> DDSWriter::getMinMaxAlpha(const Image& image,
+	int i, int j, int lvl)
+{
+	float min_alpha = 2.0f, max_alpha = -1.0f;
+	for (int ip = 1; ip < 16; ++ip)
+	{
+		int i0 = i + ip/4;
+		int j0 = j + ip%4;
+		if (i0 >= image.height(lvl) || j0 >= image.width(lvl))
+			continue;
+
+		const Pixel& p = image(i0, j0, lvl);
+		min_alpha = std::min(min_alpha, p.alpha());
+		max_alpha = std::max(max_alpha, p.alpha());
+	}
+
+	return std::make_pair(min_alpha, max_alpha);
 }

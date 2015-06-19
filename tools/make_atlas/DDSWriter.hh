@@ -16,6 +16,7 @@ public:
 	DDSWriter(std::ostream& os): _os(os), _fit_method(END_PIXELS) {}
 
 	void writeDXT1(const Image& image);
+	void writeDXT5(const Image& image);
 
 private:
 	std::ostream& _os;
@@ -23,12 +24,15 @@ private:
 
 	void writeHeader(const Image& image, std::uint32_t four_cc);
 	void writeColorBlock(const Image& image, int i, int j, int lvl);
+	void writeInterpolatedAlphaBlock(const Image& image, int i, int j, int lvl);
 
 	const std::pair<Pixel, Pixel> getMinMaxColors(const Image& image,
 		int i, int j, int lvl);
-	const std::pair<Pixel, Pixel> getMinMaxEndPixels(const Image& image,
+	const std::pair<Pixel, Pixel> getMinMaxColorsEndPixels(const Image& image,
 		int i, int j, int lvl);
-	const std::pair<Pixel, Pixel> getMinMaxLuminance(const Image& image,
+	const std::pair<Pixel, Pixel> getMinMaxColorsLuminance(const Image& image,
+		int i, int j, int lvl);
+	const std::pair<float, float> getMinMaxAlpha(const Image& image,
 		int i, int j, int lvl);
 };
 

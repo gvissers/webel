@@ -51,9 +51,6 @@ public:
 		return _c[0] + _c[1] + 2*_c[2];
 	}
 
-private:
-	std::array<float, 4> _c;
-
 	static std::uint8_t floatToByte(float f)
 	{
 		return 255.0 * f + 0.5;
@@ -61,6 +58,9 @@ private:
 		//return std::uint8_t(std::round(255*f));
 		//return std::uint8_t(std::floor(255*f));
 	}
+
+private:
+	std::array<float, 4> _c;
 };
 
 inline const Pixel mixPixels(const Pixel &p0, float w0, const Pixel& p1, float w1)
