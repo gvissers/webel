@@ -19,7 +19,11 @@ function Object2DDefCache()
 		error: function() {
 			logError("Failed to initialize 2d object cache");
 		},
-		success: function(defs) { this_obj.fill(defs); }
+		success: function(defs) {
+			Signal.bind(Signal.TEXTURE_ATLASES_LOADED,
+				function() { this_obj.fill(defs); });
+			texture_cache.checkAtlasesLoaded();
+		}
 	});
 }
 
@@ -47,7 +51,16 @@ Object2DDefCache.prototype.fill = function(defs)
 		{
 			var def = defs[fname];
 			if (def.texture_fname)
-				def.texture = texture_cache.get(def.texture_fname);
+			{
+				var tup = texture_cache.lookupAtlas(def.texture_fname);
+				var du = tup.coords.u_end - tup.coords.u_start;
+				var dv = tup.coords.v_end - tup.coords.v_start;
+				def.u_start = tup.coords.u_start + du * def.u_start;
+				def.v_start = tup.coords.v_start + dv * def.v_start;
+				def.u_end = tup.coords.u_start + du * def.u_end;
+				def.v_end = tup.coords.v_start + dv * def.v_end;
+				def.texture_fname = tup.fname;
+			}
 			this._cache[fname] = def;
 		}
 		this._preloaded = true;
