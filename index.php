@@ -35,6 +35,7 @@
 		<script type="text/javascript" src="ParticleSystem.js"></script>
 		<script type="text/javascript" src="ParticleSystemDef.js"></script>
 		<script type="text/javascript" src="ParticleSystemDefCache.js"></script>
+		<script type="text/javascript" src="ParticleSystemMap.js"></script>
 		<script type="text/javascript" src="ProjectionMatrix.js"></script>
 		<script type="text/javascript" src="Material.js"></script>
 		<script type="text/javascript" src="Shaders.js"></script>

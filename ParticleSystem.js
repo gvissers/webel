@@ -17,11 +17,6 @@ function ParticleSystem(fname, pos)
 	/// Velocities of the particles in this system
 	this.velocities = null;
 
-	/// GL vertex buffer
-	this.vertex_buffer = gl.createBuffer();
-	/// GL color buffer
-	this.color_buffer = gl.createBuffer();
-
 	/// The number of particles still active
 	this.nr_particles_alive = 0;
 	/// The timestamp until which the system goes out of existance
@@ -30,10 +25,8 @@ function ParticleSystem(fname, pos)
 	/// Timestamp of last update
 	this.last_update = null;
 
-	/// Get the definition for this particle system
+	/// The definition for this particle system
 	this.def = null;
-	var this_obj = this;
-	particle_system_def_cache.get(fname, function(def) { this_obj.setDefinition(def); });
 }
 
 /// Maximum height particles in a teleporter system are allowed to go, in "meters"
@@ -51,8 +44,13 @@ ParticleSystem.min_burst_speed = 0.01;
 /// Scale factor for resetting the velocity of too slow particles in a burst system
 ParticleSystem.burst_reset_scale = 0.25;
 
-/// Set the definition of this particle systems and initialize it
-ParticleSystem.prototype.setDefinition = function(def)
+/**
+ * Set the definition of this particle systems and initialize it.
+ * @param def      The definition of the [article system
+ * @param vertices Array to store the positions of the particles in
+ * @param colors   Array to store the particle colors in
+ */
+ParticleSystem.prototype.setDefinition = function(def, vertices, colors)
 {
 	this.def = def;
 
@@ -60,8 +58,8 @@ ParticleSystem.prototype.setDefinition = function(def)
 
 	this.nr_particles_alive = def.count;
 
-	this.vertices = new Float32Array(this.nr_particles_alive * 3);
-	this.colors = new Float32Array(this.nr_particles_alive * 4);
+	this.vertices = vertices;
+	this.colors = colors;
 	this.velocities = new Float32Array(this.nr_particles_alive * 3);
 	for (var ip = 0; ip < this.nr_particles_alive; ++ip)
 	{
@@ -377,28 +375,3 @@ ParticleSystem.prototype.setVelocity = function(ip, velocity)
 	for (var i = 0; i < 3; ++i)
 		this.velocities[3*ip+i] = velocity[i];
 };
-
-/// Draw this particle system on the screen
-ParticleSystem.prototype.draw = function()
-{
-	if (!this.def)
-		// definition not loaded yet
-		return;
-
-	gl.uniform1f(shaders.program.point_size, this.def.size*(11-camera.zoom_distance)*2.2);
-
-	gl.blendFunc(this.def.blend.source, this.def.blend.dest);
-	gl.bindTexture(gl.TEXTURE_2D, this.def.texture);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute, 3,
-		gl.FLOAT, false, 0, 0);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.color_buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program.vertexColorAttribute, 4,
-		gl.FLOAT, false, 0, 0);
-
-	gl.drawArrays(gl.POINTS, 0, this.nr_particles_alive);
-}

@@ -22,7 +22,7 @@ function GameMap(fname)
 	/// three-dimensional objects
 	this.objects_3d = [];
 	/// Particle systems
-	this.particles = [];
+	this.particles = new ParticleSystemMap;
 
 	$.ajax(fname, {
 		dataType: "arraybuffer",
@@ -103,8 +103,9 @@ GameMap.prototype._construct = function(data)
 	{
 		var str = extractString(view, off, 80);
 		var pos = new Float32Array(data, off+80, 3);
-		this.particles.push(new ParticleSystem(str, pos));
+		this.particles.add(new ParticleSystem(str, pos));
 	}
+	this.particles.setAllDefinitions();
 
 	var x = elev_map_width>>1;
 	var y = elev_map_height>>1;
@@ -170,16 +171,7 @@ GameMap.prototype.draw = function()
 	this.draw_stats.ticks_3d += toc - tic;
 
 	tic = new Date().getTime();
-	gl.uniform1i(shaders.program.do_point, true);
-	gl.disableVertexAttribArray(shaders.program.textureCoordAttribute);
-	gl.enableVertexAttribArray(shaders.program.vertexColorAttribute);
-	gl.enable(gl.BLEND);
-	for (var i = 0; i < this.particles.length; ++i)
-		this.particles[i].draw();
-	gl.disable(gl.BLEND);
-	gl.disableVertexAttribArray(shaders.program.vertexColorAttribute);
-	gl.enableVertexAttribArray(shaders.program.textureCoordAttribute);
-	gl.uniform1i(shaders.program.do_point, false);
+	this.particles.draw();
 	toc = new Date().getTime();
 	this.draw_stats.ticks_part += toc - tic;
 
@@ -211,8 +203,7 @@ GameMap.prototype.animate = function(time)
 	}
 
 	var tic = new Date().getTime();
-	for (var i = 0; i < this.particles.length; ++i)
-		this.particles[i].update(time);
+	this.particles.update(time);
 	var toc = new Date().getTime();
 	this.update_stats.ticks_part += toc - tic;
 
