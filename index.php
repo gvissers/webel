@@ -19,9 +19,6 @@
 		<script type="text/javascript" src="Font.js"></script>
 		<script type="text/javascript" src="FPSCounter.js"></script>
 		<script type="text/javascript" src="GameMap.js"></script>
-<!--
-		<script type="text/javascript" src="GameWindow.js"></script>
--->
 		<script type="text/javascript" src="GLMatrix.js"></script>
 		<script type="text/javascript" src="GroundTileMap.js"></script>
 		<script type="text/javascript" src="HalfLUT.js"></script>
