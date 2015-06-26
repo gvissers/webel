@@ -47,24 +47,39 @@ TextBuffer.prototype.add = function(type, text)
 		this.messages = this.messages.slice(-this.min_history);
 };
 
-TextBuffer.prototype.drawCharAt = function(x, y, c)
+TextBuffer.prototype.drawStringAt = function(x_start, y_start, str)
 {
+	if (str.length > this.buffers_size)
+		this.resizeBuffers(str.length);
+
 	gl.enableVertexAttribArray(shaders.program.vertexColorAttribute);
 
-	if (Protocol.charIsColor(c))
+	var x = x_start;
+	var y = y_start;
+	var count = 0;
+	for (var i = 0; i < str.length; ++i)
 	{
-		this.current_color = c;
-		return;
-	}
+		var c = str[i];
+		if (Protocol.charIsColor(c))
+		{
+			this.current_color = c;
+			continue;
+		}
 
-	font.addChar(x, y, c, this.current_color, this.vertices.subarray(0, 8),
-		this.texture_coords.subarray(0, 8), this.colors.subarray(0, 12));
-	this.indices[0] = 0;
-	this.indices[1] = 1;
-	this.indices[2] = 2;
-	this.indices[3] = 0;
-	this.indices[4] = 2;
-	this.indices[5] = 3;
+		var dx = font.addChar(x, y, c, this.current_color,
+			this.vertices.subarray(8*count, 8*count+8),
+			this.texture_coords.subarray(8*count, 8*count+8),
+			this.colors.subarray(12*count, 12*count+12));
+		this.indices[6*count  ] = 4*count;
+		this.indices[6*count+1] = 4*count+1;
+		this.indices[6*count+2] = 4*count+2;
+		this.indices[6*count+3] = 4*count;
+		this.indices[6*count+4] = 4*count+2;
+		this.indices[6*count+5] = 4*count+3;
+
+		x += dx;
+		++count;
+	}
 
 	font.bindTexture();
 
@@ -86,5 +101,17 @@ TextBuffer.prototype.drawCharAt = function(x, y, c)
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.index_buffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
 
-	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+	gl.drawElements(gl.TRIANGLES, 6*count, gl.UNSIGNED_SHORT, 0);
 };
+
+TextBuffer.prototype.resizeBuffers = function(min_len)
+{
+	if (this.buffers_size < min_len)
+	{
+		this.buffers_size = 100 * Math.ceil(min_len/100);
+		this.vertices = new Float32Array(8*this.buffers_size);
+		this.texture_coords = new Float32Array(8*this.buffers_size);
+		this.colors = new Uint8Array(12*this.buffers_size);
+		this.indices = new Uint16Array(6*this.buffers_size);
+	}
+}

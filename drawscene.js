@@ -126,7 +126,7 @@ function drawScene()
 	map.draw();
 
 	to2DMode();
-	text_buffer.drawCharAt(10, 10, 65);
+	text_buffer.drawStringAt(10, 10, [65, 97, 109]);
 	drawSquare();
 }
 
