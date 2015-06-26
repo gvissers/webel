@@ -1,6 +1,7 @@
 <html>
 	<head>
 		<title>WebEL</title>
+		<link rel="shortcut icon" type="image/x-icon" href="elc.ico"/>
 		<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
 		<script type="text/javascript" src="gl-matrix.js"></script>
