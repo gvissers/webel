@@ -106,6 +106,9 @@ KeyHandler.prototype.handleKeyUp = function(event)
 		case KeyHandler.KeyCode.Delete:
 			camera.stepBackward();
 			break;
+		case KeyHandler.KeyCode.p:
+			console.log(camera.tile_pos);
+			break;
 	}
 	this.keys_pressed[event.keyCode] = false;
 };
