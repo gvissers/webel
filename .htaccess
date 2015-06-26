@@ -1,0 +1,11 @@
+RewriteEngine On
+RewriteRule ^(.*)\.elm$ elc/$1.elm.gz
+RewriteRule ^(.*\.2d0)$ get2d0.php?fname=$1
+RewriteRule ^(.*\.part)$ getpart.php?fname=$1
+RewriteRule ^(.*\.atlas)$ getatlas.php?fname=$1
+RewriteRule ^((2dobjects|3dobjects|maps|textures)/.*) elc/$1
+
+<Files *.elm.gz >
+	AddEncoding x-gzip .gz
+	AddType application/octet-stream .gz
+</Files>

@@ -1,48 +1,48 @@
 <html>
 	<head>
 		<title>WebEL</title>
-		<link rel="shortcut icon" type="image/x-icon" href="elc.ico"/>
+		<link rel="shortcut icon" type="image/x-icon" href="elc/elc.ico"/>
 		<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
-		<script type="text/javascript" src="gl-matrix.js"></script>
-		<script type="text/javascript" src="webgl-utils.js"></script>
-		<script type="text/javascript" src="jquery-2.1.3.js"></script>
+		<script type="text/javascript" src="js/extern/gl-matrix.js"></script>
+		<script type="text/javascript" src="js/extern/webgl-utils.js"></script>
+		<script type="text/javascript" src="js/extern/jquery-2.1.3.js"></script>
 
-		<script type="text/javascript" src="ajaxblob.js"></script>
+		<script type="text/javascript" src="js/extern/ajaxblob.js"></script>
 
-		<script type="text/javascript" src="Protocol.js"></script>
+		<script type="text/javascript" src="js/Protocol.js"></script>
 
-		<script type="text/javascript" src="BoundingBox.js"></script>
-		<script type="text/javascript" src="Camera.js"></script>
-		<script type="text/javascript" src="DDS.js"></script>
-		<script type="text/javascript" src="ElevationMap.js"></script>
-		<script type="text/javascript" src="Font.js"></script>
-		<script type="text/javascript" src="FPSCounter.js"></script>
-		<script type="text/javascript" src="GameMap.js"></script>
-		<script type="text/javascript" src="GLMatrix.js"></script>
-		<script type="text/javascript" src="GroundTileMap.js"></script>
-		<script type="text/javascript" src="HalfLUT.js"></script>
-		<script type="text/javascript" src="KeyHandler.js"></script>
-		<script type="text/javascript" src="ModelViewMatrix.js"></script>
-		<script type="text/javascript" src="Object2D.js"></script>
-		<script type="text/javascript" src="Object2DDefCache.js"></script>
-		<script type="text/javascript" src="Object2DMap.js"></script>
-		<script type="text/javascript" src="Object3D.js"></script>
-		<script type="text/javascript" src="Object3DDef.js"></script>
-		<script type="text/javascript" src="Object3DDefCache.js"></script>
-		<script type="text/javascript" src="ParticleSystem.js"></script>
-		<script type="text/javascript" src="ParticleSystemDef.js"></script>
-		<script type="text/javascript" src="ParticleSystemDefCache.js"></script>
-		<script type="text/javascript" src="ParticleSystemMap.js"></script>
-		<script type="text/javascript" src="ProjectionMatrix.js"></script>
-		<script type="text/javascript" src="Material.js"></script>
-		<script type="text/javascript" src="Shaders.js"></script>
-		<script type="text/javascript" src="Signal.js"></script>
-		<script type="text/javascript" src="TextBuffer.js"></script>
-		<script type="text/javascript" src="TextureCache.js"></script>
-		<script type="text/javascript" src="util.js"></script>
+		<script type="text/javascript" src="js/BoundingBox.js"></script>
+		<script type="text/javascript" src="js/Camera.js"></script>
+		<script type="text/javascript" src="js/DDS.js"></script>
+		<script type="text/javascript" src="js/ElevationMap.js"></script>
+		<script type="text/javascript" src="js/Font.js"></script>
+		<script type="text/javascript" src="js/FPSCounter.js"></script>
+		<script type="text/javascript" src="js/GameMap.js"></script>
+		<script type="text/javascript" src="js/GLMatrix.js"></script>
+		<script type="text/javascript" src="js/GroundTileMap.js"></script>
+		<script type="text/javascript" src="js/HalfLUT.js"></script>
+		<script type="text/javascript" src="js/KeyHandler.js"></script>
+		<script type="text/javascript" src="js/ModelViewMatrix.js"></script>
+		<script type="text/javascript" src="js/Object2D.js"></script>
+		<script type="text/javascript" src="js/Object2DDefCache.js"></script>
+		<script type="text/javascript" src="js/Object2DMap.js"></script>
+		<script type="text/javascript" src="js/Object3D.js"></script>
+		<script type="text/javascript" src="js/Object3DDef.js"></script>
+		<script type="text/javascript" src="js/Object3DDefCache.js"></script>
+		<script type="text/javascript" src="js/ParticleSystem.js"></script>
+		<script type="text/javascript" src="js/ParticleSystemDef.js"></script>
+		<script type="text/javascript" src="js/ParticleSystemDefCache.js"></script>
+		<script type="text/javascript" src="js/ParticleSystemMap.js"></script>
+		<script type="text/javascript" src="js/ProjectionMatrix.js"></script>
+		<script type="text/javascript" src="js/Material.js"></script>
+		<script type="text/javascript" src="js/Shaders.js"></script>
+		<script type="text/javascript" src="js/Signal.js"></script>
+		<script type="text/javascript" src="js/TextBuffer.js"></script>
+		<script type="text/javascript" src="js/TextureCache.js"></script>
+		<script type="text/javascript" src="js/util.js"></script>
 
-		<script type="text/javascript" src="drawscene.js"></script>
+		<script type="text/javascript" src="js/drawscene.js"></script>
 	</head>
 
 	<body onload="webGLStart();">

@@ -68,14 +68,18 @@ try
 		throw new Exception('Invalid file name');
 	$basename = $matches[2];
 
-	$fname_part = $basename . '.part';
-	$have_part = file_exists($fname_part);
-	$fname_json = $basename . '.part.json';
-	$have_json = file_exists($fname_json);
-
-	$read_json = $have_json;
-	if ($basename !== '__all__')
+	if ($basename == '__all__')
 	{
+		$fname_json = $basename . '.part.json';
+		$read_json = file_exists($fname_json);
+	}
+	else
+	{
+		$fname_part = "elc/{$basename}.part";
+		$have_part = file_exists($fname_part);
+		$fname_json = "elc/{$basename}.part.json";
+		$have_json = file_exists($fname_json);
+		$read_json = $have_json;
 		if (!$have_part)
 		{
 			if (!$have_json)

@@ -75,14 +75,18 @@ try
 		throw new Exception('Invalid file name');
 	$basename = $matches[2];
 
-	$fname_2d0 = $basename . '.2d0';
-	$have_2d0 = file_exists($fname_2d0);
-	$fname_json = $basename . '.2d0.json';
-	$have_json = file_exists($fname_json);
-
-	$read_json = $have_json;
-	if ($basename != '__all__')
+	if ($basename == '__all__')
 	{
+		$fname_json = $basename . '.2d0.json';
+		$read_json = file_exists($fname_json);
+	}
+	else
+	{
+		$fname_2d0 = "elc/{$basename}.2d0";
+		$have_2d0 = file_exists($fname_2d0);
+		$fname_json = "elc/{$basename}.2d0.json";
+		$have_json = file_exists($fname_json);
+		$read_json = $have_json;
 		if (!$have_2d0)
 		{
 			if (!$have_json)

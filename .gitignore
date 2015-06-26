@@ -1,7 +1,4 @@
-2dobjects
-3dobjects
-maps
-textures
+elc
 tools/make_atlas/.deps/
 tools/make_atlas/.objs/
 tools/make_atlas/make_atlas
