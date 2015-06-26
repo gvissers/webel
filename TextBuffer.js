@@ -52,8 +52,6 @@ TextBuffer.prototype.drawStringAt = function(x_start, y_start, str)
 	if (str.length > this.buffers_size)
 		this.resizeBuffers(str.length);
 
-	gl.enableVertexAttribArray(shaders.program.vertexColorAttribute);
-
 	var x = x_start;
 	var y = y_start;
 	var count = 0;
@@ -85,18 +83,18 @@ TextBuffer.prototype.drawStringAt = function(x_start, y_start, str)
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute, 2,
-		gl.FLOAT, false, 0, 0);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.texture_coord_buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, this.texture_coords, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program.textureCoordAttribute, 2,
+	gl.vertexAttribPointer(shaders.program_2d.vertex_position, 2,
 		gl.FLOAT, false, 0, 0);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.color_buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program.vertexColorAttribute, 3,
+	gl.vertexAttribPointer(shaders.program_2d.vertex_color, 3,
 		gl.UNSIGNED_BYTE, true, 0, 0);
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.texture_coord_buffer);
+	gl.bufferData(gl.ARRAY_BUFFER, this.texture_coords, gl.STATIC_DRAW);
+	gl.vertexAttribPointer(shaders.program_2d.texture_coord, 2,
+		gl.FLOAT, false, 0, 0);
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.index_buffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);

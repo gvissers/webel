@@ -8,11 +8,14 @@ function Shaders()
 	var _shaders_obj = this;
 	var _status = {
 		"shaders/shader-fs.glsl": Shaders.Status.UNINITIALIZED,
-		"shaders/shader-vs.glsl": Shaders.Status.UNINITIALIZED
+		"shaders/shader-vs.glsl": Shaders.Status.UNINITIALIZED,
+		"shaders/shader2d-fs.glsl": Shaders.Status.UNINITIALIZED,
+		"shaders/shader2d-vs.glsl": Shaders.Status.UNINITIALIZED
 	};
 
 	this.ready = false;
 	this.program = null;
+	this.program_2d = null;
 
 	function _getShaderScript(fname)
 	{
@@ -31,6 +34,8 @@ function Shaders()
 			_status[fname] = Shaders.Status.ERROR;
 			return;
 		}
+
+		var progname = fname.indexOf("2d") >= 0 ? "program_2d" : "program";
 
 		_status[fname] = Shaders.Status.IN_PROGRESS;
 		$.ajax(fname, {
@@ -51,7 +56,7 @@ function Shaders()
 				}
 				else
 				{
-					gl.attachShader(_shaders_obj.program, shader);
+					gl.attachShader(_shaders_obj[progname], shader);
 					_status[fname] = Shaders.Status.OK;
 				}
 			}
@@ -80,14 +85,10 @@ function Shaders()
 		if (!gl.getProgramParameter(program, gl.LINK_STATUS))
 			logError("Could not initialise shaders");
 
-		gl.useProgram(program);
-
-		program.vertexPositionAttribute = gl.getAttribLocation(program, "aVertexPosition");
-		program.vertexNormalAttribute = gl.getAttribLocation(program, "aVertexNormal");
-		program.vertexColorAttribute = gl.getAttribLocation(program, "aVertexColor");
-		program.textureCoordAttribute = gl.getAttribLocation(program, "aTextureCoord");
-
-		gl.enableVertexAttribArray(program.vertexPositionAttribute);
+		program.vertex_position = gl.getAttribLocation(program, "vertex_position");
+		program.vertex_normal = gl.getAttribLocation(program, "vertex_normal");
+		program.vertex_color = gl.getAttribLocation(program, "vertex_color");
+		program.texture_coord = gl.getAttribLocation(program, "texture_coord");
 
 		program.projection = gl.getUniformLocation(program, "projection");
 		program.model_view = gl.getUniformLocation(program, "model_view");
@@ -101,12 +102,30 @@ function Shaders()
 		program.point_size = gl.getUniformLocation(program, "point_size");
 		program.do_point = gl.getUniformLocation(program, "do_point");
 
+		program.fog_density = gl.getUniformLocation(program, "fog_density");
+		program.fog_color = gl.getUniformLocation(program, "fog_color");
+
+		var program_2d = _shaders_obj.program_2d;
+		gl.linkProgram(program_2d);
+		if (!gl.getProgramParameter(program_2d, gl.LINK_STATUS))
+			logError("Could not initialise 2D shaders");
+
+		program_2d.vertex_position = gl.getAttribLocation(program_2d, "vertex_position");
+		program_2d.vertex_color = gl.getAttribLocation(program_2d, "vertex_color");
+		program_2d.texture_coord = gl.getAttribLocation(program_2d, "texture_coord");
+
+		program_2d.projection = gl.getUniformLocation(program_2d, "projection");
+		program_2d.model_view = gl.getUniformLocation(program_2d, "model_view");
+
+		program_2d.alpha_low = gl.getUniformLocation(program_2d, "alpha_low");
+
 		_shaders_obj.ready = true;
 	}
 
 	this.init = function()
 	{
 		this.program = gl.createProgram();
+		this.program_2d = gl.createProgram();
 
 		for (var fname in _status)
 			_getShaderScript(fname);

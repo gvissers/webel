@@ -116,6 +116,7 @@ GameMap.prototype._construct = function(data)
 		y += Math.round(d*Math.random());
 		d += 1;
 	}
+x=330;y=320;
 	camera.set(this.elevation_map, x, y);
 	console.log(this);
 };
@@ -139,11 +140,10 @@ GameMap.prototype.draw = function()
 		};
 	}
 
-	// All objects are textured, disable vertex coloring and enable texture
-	// coordinates
-	gl.disableVertexAttribArray(shaders.program.vertexColorAttribute);
-	gl.vertexAttrib4f(shaders.program.vertexColorAttribute, 1, 1, 1, 1);
-	gl.enableVertexAttribArray(shaders.program.textureCoordAttribute);
+	// All objects are textured, vertex color arrays should be disabled and
+	// texture coordinates should be enabled. Set the vertex color to solid
+	// white, so we see the pure texture colors.
+	gl.vertexAttrib4f(shaders.program.vertex_color, 1, 1, 1, 1);
 
 	gl.disable(gl.BLEND);
 

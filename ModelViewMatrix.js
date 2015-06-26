@@ -2,11 +2,12 @@
 
 /**
  * Class for the model view matrix
+ * @param program_name The name of the GLSL program in which this matrix is used
  */
-function ModelViewMatrix()
+function ModelViewMatrix(program_name)
 {
 	/// Call parent constructor
-	GLMatrix.call(this, "model_view");
+	GLMatrix.call(this, "model_view", program_name);
 
 	/// Normal matrix (inverse of rotation part of this matrix)
 	this.normal_matrix = mat3.create();

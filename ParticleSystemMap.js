@@ -104,18 +104,18 @@ ParticleSystemMap.prototype.draw = function()
 		return;
 
 	gl.uniform1i(shaders.program.do_point, true);
-	gl.disableVertexAttribArray(shaders.program.textureCoordAttribute);
-	gl.enableVertexAttribArray(shaders.program.vertexColorAttribute);
+	gl.disableVertexAttribArray(shaders.program.texture_coord);
+	gl.enableVertexAttribArray(shaders.program.vertex_color);
 	gl.enable(gl.BLEND);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this._vertex_buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute, 3,
+	gl.vertexAttribPointer(shaders.program.vertex_position, 3,
 		gl.FLOAT, false, 0, 0);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this._color_buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, this._colors, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program.vertexColorAttribute, 4,
+	gl.vertexAttribPointer(shaders.program.vertex_color, 4,
 		gl.FLOAT, false, 0, 0);
 
 	for (var fname in this._systems)
@@ -138,8 +138,8 @@ ParticleSystemMap.prototype.draw = function()
 	}
 
 	gl.disable(gl.BLEND);
-	gl.disableVertexAttribArray(shaders.program.vertexColorAttribute);
-	gl.enableVertexAttribArray(shaders.program.textureCoordAttribute);
+	gl.disableVertexAttribArray(shaders.program.vertex_color);
+	gl.enableVertexAttribArray(shaders.program.texture_coord);
 	gl.uniform1i(shaders.program.do_point, false);
 };
 

@@ -5,7 +5,9 @@ var far_plane = 100;
 
 var gl;
 var model_view_matrix = new ModelViewMatrix;
+var model_view_matrix_2d = new ModelViewMatrix("program_2d");
 var projection_matrix = new ProjectionMatrix;
+var projection_matrix_2d = new ProjectionMatrix("program_2d");
 var game_window;
 var lastTime = 0;
 var shaders = new Shaders();
@@ -45,6 +47,13 @@ function initGL(canvas)
 
 function to3DMode()
 {
+	gl.useProgram(shaders.program);
+
+	gl.enableVertexAttribArray(shaders.program.vertex_position);
+	gl.disableVertexAttribArray(shaders.program.vertex_normal);
+	gl.disableVertexAttribArray(shaders.program.vertex_color);
+	gl.enableVertexAttribArray(shaders.program.texture_coord);
+
 	gl.enable(gl.DEPTH_TEST);
 
 	var aspect = gl.viewportWidth/gl.viewportHeight;
@@ -58,18 +67,27 @@ function to3DMode()
 
 	gl.uniformMatrix3fv(shaders.program.nMatrixUniform, false,
 		model_view_matrix.normal());
+
+	gl.uniform1f(shaders.program.fog_density, 0.05);
+	gl.uniform3fv(shaders.program.fog_color, [0.5, 0.5, 0.5]);
 }
 
 function to2DMode()
 {
+	gl.useProgram(shaders.program_2d);
+
+	gl.enableVertexAttribArray(shaders.program_2d.vertex_position);
+	gl.enableVertexAttribArray(shaders.program_2d.vertex_color);
+	gl.enableVertexAttribArray(shaders.program_2d.texture_coord);
+
 	gl.disable(gl.DEPTH_TEST);
 
-	projection_matrix.ortho(0.0, gl.viewportWidth, gl.viewportHeight, 0.0,
+	projection_matrix_2d.ortho(0.0, gl.viewportWidth, gl.viewportHeight, 0.0,
 		-1.0, 1.0);
-	projection_matrix.setUniform();
+	projection_matrix_2d.setUniform();
 
-	model_view_matrix.setIdentity();
-	model_view_matrix.setUniform();
+	model_view_matrix_2d.setIdentity();
+	model_view_matrix_2d.setUniform();
 }
 
 var sq_vertex_buf = 0;
@@ -82,9 +100,7 @@ function drawSquare()
 	if (!sq_color_buf)
 		sq_color_buf = gl.createBuffer();
 
-	gl.enableVertexAttribArray(shaders.program.vertexColorAttribute);
-	gl.vertexAttrib4f(shaders.program.vertexColorAttribute, 1, 1, 1, 1);
-	gl.disableVertexAttribArray(shaders.program.textureCoordAttribute);
+	gl.disableVertexAttribArray(shaders.program_2d.texture_coords);
 
 	var vertices = new Float32Array([
 		10, 10, 0,
@@ -103,15 +119,17 @@ function drawSquare()
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, sq_vertex_buf);
 	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute, 3,
+	gl.vertexAttribPointer(shaders.program_2d.vertex_position, 3,
 		gl.FLOAT, false, 0, 0);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, sq_color_buf);
 	gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program.vertexColorAttribute, 4,
+	gl.vertexAttribPointer(shaders.program_2d.vertex_color, 4,
 		gl.FLOAT, false, 0, 0);
 
 	gl.drawArrays(gl.LINE_LOOP, 0, 4);
+
+	gl.enableVertexAttribArray(shaders.program_2d.texture_coords);
 }
 
 function drawScene()

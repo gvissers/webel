@@ -364,24 +364,24 @@ Object3DDef.prototype.draw = function()
 		return;
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
-	gl.vertexAttribPointer(shaders.program.vertexPositionAttribute, 3,
+	gl.vertexAttribPointer(shaders.program.vertex_position, 3,
 		gl.FLOAT, false, 0, 0);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.texture_coord_buffer);
-	gl.vertexAttribPointer(shaders.program.textureCoordAttribute, 2,
+	gl.vertexAttribPointer(shaders.program.texture_coord, 2,
 		gl.FLOAT, false, 0, 0);
 
 	if (this.normals)
 	{
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.normal_buffer);
-		gl.vertexAttribPointer(shaders.program.vertexNormalAttribute, 3,
+		gl.vertexAttribPointer(shaders.program.vertex_normal, 3,
 			gl.FLOAT, false, 0, 0);
 	}
 
 	if (this.colors)
 	{
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.color_buffer);
-		gl.vertexAttribPointer(shaders.program.vertexColorAttribute, 4,
+		gl.vertexAttribPointer(shaders.program.vertex_color, 4,
 			gl.UNSIGNED_BYTE, false, 0, 0);
 	}
 
@@ -400,6 +400,6 @@ Object3DDef.prototype.draw = function()
 
 		gl.bindTexture(gl.TEXTURE_2D, material.texture);
 		gl.drawElements(gl.TRIANGLES, material.count, this.index_type,
-            material.index*this.index_size);
+			material.index*this.index_size);
 	}
 }

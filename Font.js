@@ -178,7 +178,7 @@ Font.prototype.addChar = function(x, y, c, color_code, vertices, texture_coords,
  */
 Font.prototype.bindTexture = function()
 {
-	gl.uniform1f(shaders.program.alpha_low, 0.1);
+	gl.uniform1f(shaders.program_2d.alpha_low, 0.1);
 	gl.bindTexture(gl.TEXTURE_2D, this.descriptions[this.current_font_nr].texture);
 }
 

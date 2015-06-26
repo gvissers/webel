@@ -2,10 +2,13 @@
 
 /**
  * A class for GL matrices, like the model view or projection matrix.
- * @param uniform The GLSL uniform attribute associated with this matrix
+ * @param uniform_name The GLSL uniform attribute associated with this matrix
+ * @param program_name The GLSL shader program in which this matrix is used
  */
-function GLMatrix(uniform_name)
+function GLMatrix(uniform_name, program_name)
 {
+	/// The GLSL attribute name for the shader program to use
+	this.program_name = program_name ? program_name : "program";
 	/// The GLSL attribute name for this matrix
 	this.uniform_name = uniform_name;
 	/// The matrix data
@@ -65,7 +68,7 @@ GLMatrix.prototype.setIdentity = function()
 GLMatrix.prototype.setUniform = function()
 {
 	if (!this.uniform)
-		this.uniform = shaders.program[this.uniform_name];
+		this.uniform = shaders[this.program_name][this.uniform_name];
 	gl.uniformMatrix4fv(this.uniform, false, this.matrix);
 };
 

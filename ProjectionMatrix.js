@@ -2,10 +2,11 @@
 
 /**
  * Class for the projection matrix
+ * @param program_name Name of the shader program to use
  */
-function ProjectionMatrix()
+function ProjectionMatrix(program_name)
 {
-	GLMatrix.call(this, "projection");
+	GLMatrix.call(this, "projection", program_name);
 }
 
 /// ProjectionMatrix derives from GLMatrix
