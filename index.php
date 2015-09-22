@@ -46,6 +46,6 @@
 	</head>
 
 	<body onload="webGLStart();">
-		<canvas id="webel-canvas" style="border: none;" width="640" height="480"></canvas>
+		<canvas id="webel-canvas" style="border: none;" width="800" height="600"></canvas>
 	</body>
 </html>
