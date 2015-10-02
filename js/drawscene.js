@@ -1,8 +1,5 @@
 "use strict";
 
-var near_plane = 0.1;
-var far_plane = 100;
-
 var gl;
 var model_view_matrix = new ModelViewMatrix;
 var model_view_matrix_2d = new ModelViewMatrix("program_2d");
@@ -22,6 +19,7 @@ var half_lut = new HalfLUT();
 var map;
 var font;
 var text_buffer;
+var sky;
 
 function logError(msg)
 {
@@ -58,7 +56,7 @@ function to3DMode()
 
 	var aspect = gl.viewportWidth/gl.viewportHeight;
 	projection_matrix.perspective(Camera.field_of_view*Math.PI/180, aspect,
-		near_plane, far_plane);
+		Camera.near_plane, Camera.far_plane);
 	projection_matrix.setUniform();
 
 	model_view_matrix.setIdentity();
@@ -142,9 +140,10 @@ function drawScene()
 
 	to3DMode();
 	map.draw();
+	sky.draw();
 
 	to2DMode();
-	text_buffer.drawStringAt(10, 10, [65, 97, 109]);
+	text_buffer.drawStringAt(10, 10, [116, 101, 115, 116]);
 	drawSquare();
 }
 
@@ -183,6 +182,7 @@ function webGLStart()
 	particle_system_def_cache = new ParticleSystemDefCache();
 	font = new Font;
 	text_buffer = new TextBuffer(1000);
+	sky = new Sky;
 
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 

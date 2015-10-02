@@ -38,6 +38,7 @@
 		<script type="text/javascript" src="js/Material.js"></script>
 		<script type="text/javascript" src="js/Shaders.js"></script>
 		<script type="text/javascript" src="js/Signal.js"></script>
+		<script type="text/javascript" src="js/Sky.js"></script>
 		<script type="text/javascript" src="js/TextBuffer.js"></script>
 		<script type="text/javascript" src="js/TextureCache.js"></script>
 		<script type="text/javascript" src="js/util.js"></script>

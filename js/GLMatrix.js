@@ -20,6 +20,12 @@ function GLMatrix(uniform_name, program_name)
 	this.uniform = null;
 }
 
+/// Return a copy of the contents of this matrix
+GLMatrix.prototype.get = function()
+{
+	return mat4.clone(this.matrix);
+};
+
 /// Multiply the matrix with @a mat
 GLMatrix.prototype.multiply = function(mat)
 {
@@ -56,6 +62,12 @@ GLMatrix.prototype.rotateY = function(ang)
 GLMatrix.prototype.rotateZ = function(ang)
 {
 	mat4.rotateZ(this.matrix, this.matrix, ang);
+};
+
+/// Set the contents of the matrix to \a mat4
+GLMatrix.prototype.set = function(mat)
+{
+	mat4.copy(this.matrix, mat);
 };
 
 /// Set the matrix to the unit matrix

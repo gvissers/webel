@@ -20,6 +20,10 @@ function Camera()
 	this.bounding_box = null;
 }
 
+/// Distance in front of which elements are not drawn
+Camera.near_plane = 0.1;
+/// Distance beyond which elements are not drawn
+Camera.far_plane = 100;
 /// View angle of the camera in degrees
 Camera.field_of_view = 45.0;
 /// Distance to move the camera when zooming in or out

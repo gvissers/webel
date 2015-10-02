@@ -13,6 +13,20 @@ function ProjectionMatrix(program_name)
 ProjectionMatrix.prototype = Object.create(GLMatrix.prototype);
 
 /**
+ * Set up a frustum in this matrix.
+ * @param left   Left side of the frustum
+ * @param right  Right side of the frustum
+ * @param bottom Bottom side of the frustum
+ * @param top    Top side of the frustum
+ * @param near   Near side of the frustum
+ * @param far    Far side of the frustum
+ */
+ProjectionMatrix.prototype.frustum = function(left, right, bottom, top, near, far)
+{
+	mat4.frustum(this.matrix, left, right, bottom, top, near, far);
+};
+
+/**
  * Set up a perspective projection in this matrix.
  * @param field_of_view Vertical view angle in radians
  * @param aspect        Aspect ratio
