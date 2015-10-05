@@ -202,7 +202,9 @@ Sky.prototype.draw = function()
 	gl.drawElements(gl.TRIANGLES, 3*this.sky_dome.nr_faces, gl.UNSIGNED_SHORT, 0);
 
 	model_view_matrix.pop();
+	model_view_matrix.setUniform();
 	projection_matrix.pop();
+	model_view_matrix.setUniform();
 
 	gl.disableVertexAttribArray(shaders.program.vertex_color);
 }
