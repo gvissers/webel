@@ -103,10 +103,15 @@ ParticleSystemMap.prototype.draw = function()
 		// definitions not loaded yet
 		return;
 
+	var old_depth_mask = gl.getParameter(gl.DEPTH_WRITEMASK);
+	var old_blend_enabled = gl.isEnabled(gl.BLEND);
+
 	gl.uniform1i(shaders.program.do_point, true);
 	gl.disableVertexAttribArray(shaders.program.texture_coord);
 	gl.enableVertexAttribArray(shaders.program.vertex_color);
-	gl.enable(gl.BLEND);
+	gl.depthMask(false);
+	if (!old_blend_enabled)
+		gl.enable(gl.BLEND);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, this._vertex_buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.STATIC_DRAW);
@@ -137,7 +142,9 @@ ParticleSystemMap.prototype.draw = function()
 		}
 	}
 
-	gl.disable(gl.BLEND);
+	gl.depthMask(old_depth_mask);
+	if (!old_blend_enabled)
+		gl.disable(gl.BLEND);
 	gl.disableVertexAttribArray(shaders.program.vertex_color);
 	gl.enableVertexAttribArray(shaders.program.texture_coord);
 	gl.uniform1i(shaders.program.do_point, false);
