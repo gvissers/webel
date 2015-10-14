@@ -321,32 +321,14 @@ ParticleSystem.prototype.updateParticles = function(frac,
  * particles.
  * @param ip Index of the particle to remove
  */
-if (Float32Array.prototype.copyWithin)
+ParticleSystem.prototype.killParticle = function(ip)
 {
-	ParticleSystem.prototype.killParticle = function(ip)
-	{
-		var np = this.nr_particles_alive;
-		this.vertices.copyWithin(3*ip, 3*np-3, 3*np);
-		this.colors.copyWithin(4*ip, 4*np-4, 4*np);
-		this.velocities.copyWithin(3*ip, 3*np-3, 3*np);
-		--this.nr_particles_alive;
-	};
-}
-else
-{
-	// Chromium doesn't have copyWithin yet
-	ParticleSystem.prototype.killParticle = function(ip)
-	{
-		var np = this.nr_particles_alive;
-		for (var i = 0; i < 3; ++i)
-			this.vertices[3*ip+i] = this.vertices[3*np-3+i];
-		for (var i = 0; i < 4; ++i)
-			this.colors[4*ip+i] = this.colors[4*np-4+i];
-		for (var i = 0; i < 3; ++i)
-			this.velocities[3*ip+i] = this.velocities[3*np-3+i];
-		--this.nr_particles_alive;
-	};
-}
+	var np = this.nr_particles_alive;
+	this.vertices.copyWithin(3*ip, 3*np-3, 3*np);
+	this.colors.copyWithin(4*ip, 4*np-4, 4*np);
+	this.velocities.copyWithin(3*ip, 3*np-3, 3*np);
+	--this.nr_particles_alive;
+};
 
 /// Set the position of the particle at index @a ip to @a position
 ParticleSystem.prototype.setPosition = function(ip, position)

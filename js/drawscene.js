@@ -20,6 +20,7 @@ var map;
 var font;
 var text_buffer;
 var sky;
+var connection;
 
 function logError(msg)
 {
@@ -190,6 +191,8 @@ function webGLStart()
 	document.onkeyup = function(event) { key_handler.handleKeyUp(event); }
 
 	map = new GameMap("maps/map3.elm");
+
+	connection = new Connection("webel.ghnet.nl", 2001);
 
 	tick();
 }

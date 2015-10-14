@@ -8,11 +8,14 @@
 		<script type="text/javascript" src="js/extern/webgl-utils.js"></script>
 		<script type="text/javascript" src="js/extern/jquery-2.1.3.js"></script>
 
+		<script type="text/javascript" src="js/platform.js"></script>
+
 		<script type="text/javascript" src="js/extern/ajaxblob.js"></script>
 
 		<script type="text/javascript" src="js/Protocol.js"></script>
 
 		<script type="text/javascript" src="js/BoundingBox.js"></script>
+		<script type="text/javascript" src="js/Connection.js"></script>
 		<script type="text/javascript" src="js/Camera.js"></script>
 		<script type="text/javascript" src="js/DDS.js"></script>
 		<script type="text/javascript" src="js/ElevationMap.js"></script>

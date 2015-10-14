@@ -75,6 +75,14 @@ var Protocol = {
 		LC_U_UML:     252,
 		MAX:          252
 	},
+	// Commands sent from client to server
+	ServerCmd: {
+		HEART_BEAT: 14
+	},
+	ClientCmd: {
+		RAW_TEXT:     0,
+		PING_REQUEST: 60
+	},
 
 	/// Check whether @a c is a color code
 	charIsColor: function(c)
