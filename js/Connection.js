@@ -78,7 +78,9 @@ Connection.prototype.handleMessage = function(opcode, data)
 			console.log("Raw text");
 			break;
 		case Protocol.ClientCmd.PING_REQUEST:
-			console.log("ping request");
+			// XXX NOTE: other-life adds some status information.
+			// EL just wants the packet back as is
+			this.send(Protocol.ServerCmd.PING_RESPONSE, data);
 			break;
 		default:
 			console.log("got " + opcode + " message with " + data.length + " bytes of data");
