@@ -75,7 +75,8 @@ Connection.prototype.handleMessage = function(opcode, data)
 	switch (opcode)
 	{
 		case Protocol.ClientCmd.RAW_TEXT:
-			console.log("Raw text");
+			if (data.length > 4)
+				text_buffer.add(data[0], data.slice(1));
 			break;
 		case Protocol.ClientCmd.PING_REQUEST:
 			// XXX NOTE: other-life adds some status information.

@@ -77,11 +77,12 @@ var Protocol = {
 	},
 	// Commands sent from client to server
 	ServerCmd: {
-		HEART_BEAT: 14
+		HEART_BEAT:    14,
+		PING_RESPONSE: 60,
 	},
 	ClientCmd: {
-		RAW_TEXT:     0,
-		PING_REQUEST: 60
+		RAW_TEXT:      0,
+		PING_REQUEST:  60
 	},
 
 	/// Check whether @a c is a color code

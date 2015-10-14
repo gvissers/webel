@@ -35,16 +35,33 @@ function TextBuffer(min_history)
 }
 
 /**
- * Add a message of type @a type and with contents @a text to the text buffer.
- * If the buffer grows too long, older messages are discarded,
- * @param type The type of message to add
- * @param text Text contents of the message
+ * Add a message from channel @a channel and with contents @a text to the text
+ * buffer. If the buffer grows too long, older messages are discarded.
+ * @param channel The type of message to add
+ * @param text    Text contents of the message
  */
-TextBuffer.prototype.add = function(type, text)
+TextBuffer.prototype.add = function(channel, text)
 {
-	this.messages.push({type: type, text: text});
+	this.messages.push({channel: channel, text: text});
 	if (this.messages.length >= 2*this.min_history)
 		this.messages = this.messages.slice(-this.min_history);
+};
+
+/**
+ * Draw all messages in the text buffer.
+ * TODO FIXME: compared to the full client, this obviously needs work. Lines
+ * aren't wrapped, messages don't scroll out, no filtering on channel is done,
+ * no support for console and scrolling, etc. But for a first version, it
+ * suffices.
+ */
+TextBuffer.prototype.draw = function()
+{
+	var end = this.messages.length;
+	var start = end > 10 ? end - 10 : 0;
+	for (var i = start, y = 10; i < end; ++i, y += Font.y_spacing)
+	{
+		this.drawStringAt(10, y, this.messages[i].text);
+	}
 };
 
 TextBuffer.prototype.drawStringAt = function(x_start, y_start, str)
