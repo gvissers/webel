@@ -42,7 +42,16 @@ function TextBuffer(min_history)
  */
 TextBuffer.prototype.add = function(channel, text)
 {
-	this.messages.push({channel: channel, text: text});
+	var off = 0;
+	while (off < text.length)
+	{
+		var end = text.indexOf("\n".charCodeAt(0), off);
+		if (end == -1)
+			end = text.length;
+		this.messages.push({channel: channel, text: text.slice(off, end)});
+		off = end + 1;
+	}
+
 	if (this.messages.length >= 2*this.min_history)
 		this.messages = this.messages.slice(-this.min_history);
 };
