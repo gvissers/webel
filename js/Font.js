@@ -124,8 +124,8 @@ Font.prototype.addChar = function(x, y, c, color_code, vertices, texture_coords,
 	if (pos < 0)
 		return 0;
 
-	var width = 11.0*4;
-	var height = 18.0*4;
+	var width = 11.0;
+	var height = 18.0;
 	var font_width = this.getCharWidth(pos);
 	var ignore = (12 - font_width) / 2;
 
