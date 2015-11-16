@@ -105,7 +105,7 @@ Font.x_spacing = 18;
 Font.y_spacing = 21;
 
 /**
- * Set vertex and texture coordinates for a character to bew drawn.
+ * Set vertex and texture coordinates for a character to be drawn.
  * @param x              x-coordinate of the upper-left corner of the character
  * @param y              y-coordinate of the upper-left corner of the character
  * @param color_code     code for the color in which to draw the character
