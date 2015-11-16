@@ -1,0 +1,8 @@
+atlas/particles
+textures/particle0.dds  0  0
+textures/particle1.dds  0 32
+textures/particle2.dds  0 64
+textures/particle3.dds  0 96
+textures/particle4.dds 32  0
+textures/particle6.dds 32 64
+
