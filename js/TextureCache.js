@@ -254,6 +254,7 @@ function TextureCache()
 		{
 			for (var f in ext)
 				_extensions[f] = ext[f];
+			break;
 		}
 	}
 	if (_extensions)
