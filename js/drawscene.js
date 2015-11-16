@@ -89,48 +89,6 @@ function to2DMode()
 	model_view_matrix_2d.setUniform();
 }
 
-var sq_vertex_buf = 0;
-var sq_color_buf = 0;
-
-function drawSquare()
-{
-	if (!sq_vertex_buf)
-		sq_vertex_buf = gl.createBuffer();
-	if (!sq_color_buf)
-		sq_color_buf = gl.createBuffer();
-
-	gl.disableVertexAttribArray(shaders.program_2d.texture_coords);
-
-	var vertices = new Float32Array([
-		10, 10, 0,
-		10, 110, 0,
-		110, 110, 0,
-		110, 10, 0
-	]);
-	var colors = new Float32Array([
-		1, 0, 0, 1,
-		0, 1, 0, 1,
-		0, 0, 1, 1,
-		1, 1, 0, 1
-	]);
-
-	texture_cache.bind("white");
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, sq_vertex_buf);
-	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program_2d.vertex_position, 3,
-		gl.FLOAT, false, 0, 0);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, sq_color_buf);
-	gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-	gl.vertexAttribPointer(shaders.program_2d.vertex_color, 4,
-		gl.FLOAT, false, 0, 0);
-
-	gl.drawArrays(gl.LINE_LOOP, 0, 4);
-
-	gl.enableVertexAttribArray(shaders.program_2d.texture_coords);
-}
-
 function drawScene()
 {
 	if (!shaders.ready)
@@ -145,7 +103,6 @@ function drawScene()
 
 	to2DMode();
 	text_buffer.draw();
-	drawSquare();
 }
 
 var lastFPS = new Date().getTime();
@@ -193,6 +150,9 @@ function webGLStart()
 	map = new GameMap("maps/map3.elm");
 
 	connection = new Connection("webel.ghnet.nl", 2001);
+
+text_buffer.add(0, [116, 104, 105, 115, 32, 105, 115, 32, 97, 32, 115, 116, 114, 105, 110, 103, 10, 119, 105, 116, 104, 32, 97, 32, 110, 101, 119, 108, 105, 110, 101]);
+text_buffer.add(0, [116, 104, 105, 115, 32, 105, 115, 32, 97, 32, 118, 101, 114, 121, 32, 108, 111, 110, 103, 32, 115, 116, 114, 105, 110, 103, 32, 99, 111, 110, 116, 97, 105, 110, 105, 110, 103, 32, 108, 111, 116, 115, 32, 111, 102, 32, 116, 101, 120, 116, 32, 119, 104, 105, 99, 104, 32, 112, 114, 111, 98, 97, 98, 108, 121, 32, 119, 111, 110, 39, 116, 32, 102, 105, 116, 32, 111, 110, 32, 116, 104, 101, 32, 115, 99, 114, 101, 101, 110]);
 
 	tick();
 }
