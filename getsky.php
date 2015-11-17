@@ -23,7 +23,7 @@ function typify($str)
 function skyboxXMLToArray($node)
 {
 	if (!$node->hasAttributes() && $node->childNodes->length == 1
-		&& $node->childNodes[0]->nodeType == XML_TEXT_NODE)
+		&& $node->childNodes->item(0)->nodeType == XML_TEXT_NODE)
 	{
 		return typify($node->textContent);
 	}
